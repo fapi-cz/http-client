@@ -9,7 +9,7 @@ Library requires PHP 7.0 or higher.
 The best way to install `fapi-cz/http-client` is using [Composer](http://getcomposer.org/).
 
 ```
-composer require fapi-cz/http-client
+composer require fapi-cz/http-client dev-master
 ```
 
 ## Documentation

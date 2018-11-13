@@ -4,7 +4,7 @@ jobs:
     docker:
     - image: circleci/php:7.1-cli
 
-    working_directory: ~/repo
+    working_directory: /repo
 
     steps:
     - checkout
@@ -24,9 +24,9 @@ jobs:
         key: v1-dependencies-{{ checksum "composer.json" }}
 
     # run tests!
-    - run: ./bin/cs
-    - run: ./bin/stan
-    - run: ./vendor/bin/tester tests -c tests/php-ci.ini --coverage coverage.xml --coverage-src src
+    - run: /repo/bin/cs
+    - run: /repo/bin/stan
+    - run: /repo/vendor/bin/tester tests -c /repo/tests/php-ci.ini --coverage /repo/coverage.xml --coverage-src /repo/src
 #    - run: bash <(curl -s https://codecov.io/bash) -t ac780c13-20d5-4325-b8bc-e6f6f8c33c95
 
 #    - store_artifacts:

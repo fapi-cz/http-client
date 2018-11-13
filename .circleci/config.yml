@@ -9,11 +9,9 @@ jobs:
     steps:
     - checkout
 
-    # Download and cache dependencies
     - restore_cache:
         keys:
         - v1-dependencies-{{ checksum "composer.json" }}
-        # fallback to using the latest cache if no exact match is found
         - v1-dependencies-
 
     - run: composer install -n --prefer-dist
@@ -23,11 +21,10 @@ jobs:
         - ./vendor
         key: v1-dependencies-{{ checksum "composer.json" }}
 
-    # run tests!
     - run: bin/cs
     - run: bin/stan
     - run: vendor/bin/tester tests -c tests/php-ci.ini --coverage coverage.xml --coverage-src src
-#    - run: bash <(curl -s https://codecov.io/bash) -t ac780c13-20d5-4325-b8bc-e6f6f8c33c95
+    #    - run: bash <(curl -s https://codecov.io/bash) -t ac780c13-20d5-4325-b8bc-e6f6f8c33c95
 
-#    - store_artifacts:
-#        path: /home/circleci/repo/coverage.xml
+    - store_artifacts:
+        path: /home/circleci/repo/coverage.xml

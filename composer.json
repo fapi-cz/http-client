@@ -1,0 +1,44 @@
+{
+  "name": "fapi-cz/http-client",
+  "description": "Library for making HTTP requests.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+	{
+	  "name": "Jan-Sebastian Fabík",
+	  "email": "honza@fabik.org"
+	},
+	{
+	  "name": "Jiří Slischka",
+	  "email": "slischkaj@gmail.com"
+	}
+  ],
+  "require": {
+	"php": "^7.0"
+  },
+  "require-dev": {
+	"ext-curl": "*",
+	"ext-json": "*",
+	"nette/tester": "^2.1",
+	"guzzlehttp/guzzle": "^6.0",
+	"tracy/tracy": "^2.5",
+	"nette/di": "^2.4",
+	"slevomat/coding-standard": "^4.8",
+	"phpstan/phpstan": "^0.10.5",
+	"phpstan/phpstan-nette": "^0.10.1",
+	"react/http": "^0.8.3",
+	"react/child-process": "^0.5.2"
+  },
+  "suggest": {
+	"ext-curl": "to use class CurlHttpClient",
+	"guzzlehttp/guzzle": "to use class GuzzleHttpClient",
+	"tracy/tracy": "to use class LoggingHttpClient",
+	"nette/tester": "to use class CapturingHttpClient",
+	"nette/di": "to use class HttpClientExtension"
+  },
+  "autoload": {
+	"classmap": [
+	  "src/"
+	]
+  }
+}

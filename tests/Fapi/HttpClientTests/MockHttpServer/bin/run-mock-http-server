@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../../../../../vendor/autoload.php';
+require __DIR__ . '/../exceptions.php';
+require __DIR__ . '/../ApiRequestHandler.php';
+require __DIR__ . '/../AssignCookieRequestHandler.php';
+require __DIR__ . '/../CheckCookieRequestHandler.php';
+require __DIR__ . '/../DelayedRequestHandler.php';
+require __DIR__ . '/../EmptyRequestHandler.php';
+require __DIR__ . '/../LoginRequestHandler.php';
+require __DIR__ . '/../MockHttpServer.php';
+
+$httpServer = new Fapi\HttpClientTests\MockHttpServer\MockHttpServer();
+$httpServer->run();

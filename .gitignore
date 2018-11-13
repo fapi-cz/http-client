@@ -1,0 +1,5 @@
+/composer.lock
+/tests/locks/*
+/tests/php.ini
+/vendor/*
+.idea

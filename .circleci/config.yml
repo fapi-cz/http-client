@@ -24,9 +24,9 @@ jobs:
         key: v1-dependencies-{{ checksum "composer.json" }}
 
     # run tests!
-    - run: ~/repo/bin/cs
-    - run: ~/repo/bin/stan
-    - run: ~/repo/vendor/bin/tester tests -c ~/repo/tests/php-ci.ini --coverage ~/repo/coverage.xml --coverage-src ~/repo/src
+    - run: bin/cs
+    - run: bin/stan
+    - run: vendor/bin/tester tests -c tests/php-ci.ini --coverage coverage.xml --coverage-src src
 #    - run: bash <(curl -s https://codecov.io/bash) -t ac780c13-20d5-4325-b8bc-e6f6f8c33c95
 
 #    - store_artifacts:

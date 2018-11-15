@@ -26,10 +26,6 @@ class HttpRequest
 	 */
 	public function __construct(string $url, string $method = HttpMethod::GET, array $options = [])
 	{
-		if (!\is_string($url)) {
-			throw new InvalidArgumentException('Parameter url must be a string.');
-		}
-
 		if (!HttpMethod::isValid($method)) {
 			throw new InvalidArgumentException('Parameter method must be an HTTP method.');
 		}

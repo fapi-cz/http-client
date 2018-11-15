@@ -17,15 +17,58 @@ class CurlHttpClient implements IHttpClient
 
 	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
 	{
+		$handle = $this->initializeCurl($httpRequest);
+		$this->processOptions($httpRequest->getOptions(), $handle);
+
+		/** @var string|false $result */
+		$result = \curl_exec($handle);
+
+		if ($result === false) {
+			$error = \curl_error($handle);
+			$errno = \curl_errno($handle);
+
+			if ($errno === \CURLE_OPERATION_TIMEOUTED) {
+				throw new TimeLimitExceededException($error, $errno);
+			}
+
+			throw new HttpClientException($error, $errno);
+		}
+
+		$headerSize = \curl_getinfo($handle, \CURLINFO_HEADER_SIZE);
+		$header = \substr($result, 0, $headerSize);
+		$body = \substr($result, $headerSize);
+
+		$statusCode = \curl_getinfo($handle, \CURLINFO_HTTP_CODE);
+		$headers = $this->parseHeaders($header);
+		$httpResponse = new HttpResponse($statusCode, $headers, $body);
+
+		\curl_close($handle);
+
+		return $httpResponse;
+	}
+
+	private function initializeCurl(HttpRequest $httpRequest)
+	{
 		$handle = \curl_init();
-		\curl_setopt($handle, \CURLOPT_URL, $httpRequest->getUrl());
-		\curl_setopt($handle, \CURLOPT_CUSTOMREQUEST, $httpRequest->getMethod());
-		\curl_setopt($handle, \CURLOPT_RETURNTRANSFER, true);
-		\curl_setopt($handle, \CURLOPT_HEADER, true);
-		\curl_setopt($handle, \CURLOPT_CAINFO, __DIR__ . '/ca-bundle.pem');
 
-		$options = $httpRequest->getOptions();
+		\curl_setopt_array($handle, [
+			\CURLOPT_URL => $httpRequest->getUrl(),
+			\CURLOPT_CUSTOMREQUEST => $httpRequest->getMethod(),
+			\CURLOPT_RETURNTRANSFER => true,
+			\CURLOPT_HEADER => true,
+			\CURLOPT_CAINFO => __DIR__ . '/ca-bundle.pem',
+		]);
 
+		return $handle;
+	}
+
+	/**
+	 * @param mixed[] $options
+	 * @param resource $handle
+	 * @return mixed[]
+	 */
+	private function processOptions(array $options, $handle): array
+	{
 		if (isset($options['headers'])) {
 			if (isset($options['form_params'])) {
 				static::setDefaultContentType($options['headers'], 'application/x-www-form-urlencoded');
@@ -72,36 +115,7 @@ class CurlHttpClient implements IHttpClient
 			}
 		}
 
-		/** @var string|false $result */
-		$result = \curl_exec($handle);
-
-		if ($result === false) {
-			$error = \curl_error($handle);
-			$errno = \curl_errno($handle);
-
-			if ($errno === \CURLE_OPERATION_TIMEOUTED) {
-				throw new TimeLimitExceededException($error, $errno);
-			}
-
-			throw new HttpClientException($error, $errno);
-		}
-
-		$headerSize = \curl_getinfo($handle, \CURLINFO_HEADER_SIZE);
-		$header = \substr($result, 0, $headerSize);
-		/** @var string|bool $body */
-		$body = \substr($result, $headerSize);
-
-		if (\is_bool($body)) {
-			$body = (string) $body;
-		}
-
-		$statusCode = \curl_getinfo($handle, \CURLINFO_HTTP_CODE);
-		$headers = $this->parseHeaders($header);
-		$httpResponse = new HttpResponse($statusCode, $headers, $body);
-
-		\curl_close($handle);
-
-		return $httpResponse;
+		return $options;
 	}
 
 	/**

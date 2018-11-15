@@ -36,12 +36,7 @@ class CurlHttpClient implements IHttpClient
 
 		$headerSize = \curl_getinfo($handle, \CURLINFO_HEADER_SIZE);
 		$header = \substr($result, 0, $headerSize);
-		/** @var string|bool $body */
 		$body = \substr($result, $headerSize);
-
-		if (\is_bool($body)) {
-			$body = (string) $body;
-		}
 
 		$statusCode = \curl_getinfo($handle, \CURLINFO_HTTP_CODE);
 		$headers = $this->parseHeaders($header);

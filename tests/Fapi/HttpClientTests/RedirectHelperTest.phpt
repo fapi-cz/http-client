@@ -31,9 +31,9 @@ class RedirectHelperTest extends TestCase
 		$response = RedirectHelper::followRedirects($client, $response);
 
 		Assert::true($client->wereAllHttpRequestsSent());
-		Assert::same($response->getStatusCode(), HttpStatusCode::S200_OK);
-		Assert::same($response->getHeaders(), ['Content-Type' => ['text/plain']]);
-		Assert::same($response->getBody(), 'OK');
+		Assert::same(HttpStatusCode::S200_OK, $response->getStatusCode());
+		Assert::same(['Content-Type' => ['text/plain']], $response->getHeaders());
+		Assert::same('OK', $response->getBody());
 	}
 
 	public function testFollowTooManyRedirects()
@@ -53,10 +53,26 @@ class RedirectHelperTest extends TestCase
 
 		$response = $client->sendHttpRequest(new HttpRequest('http://example.com/a'));
 
+		$response = RedirectHelper::followRedirects($client, $response);
+
 		Assert::true($client->wereAllHttpRequestsSent());
-		Assert::same($response->getStatusCode(), HttpStatusCode::S301_MOVED_PERMANENTLY);
-		Assert::same($response->getHeaders(), ['Location' => ['invalid']]);
-		Assert::same($response->getBody(), '');
+		Assert::same(HttpStatusCode::S301_MOVED_PERMANENTLY, $response->getStatusCode());
+		Assert::same(['Location' => ['invalid']], $response->getHeaders());
+		Assert::same('', $response->getBody());
+	}
+
+	public function testFollowRedirectToEmptyUrl()
+	{
+		$client = $this->getMockHttpClientWithEmptyInvalidRedirectUrl();
+
+		$response = $client->sendHttpRequest(new HttpRequest('http://example.com/a'));
+
+		$response = RedirectHelper::followRedirects($client, $response);
+
+		Assert::true($client->wereAllHttpRequestsSent());
+		Assert::same(HttpStatusCode::S301_MOVED_PERMANENTLY, $response->getStatusCode());
+		Assert::same([], $response->getHeaders());
+		Assert::same('', $response->getBody());
 	}
 
 	private function getMockHttpClient(): MockHttpClient
@@ -101,7 +117,32 @@ class RedirectHelperTest extends TestCase
 			new HttpRequest('http://example.com/a'),
 			new HttpResponse(
 				HttpStatusCode::S301_MOVED_PERMANENTLY,
+				['Location' => ['http://example.com/a2']],
+				''
+			)
+		);
+
+		$client->add(
+			new HttpRequest('http://example.com/a2'),
+			new HttpResponse(
+				HttpStatusCode::S301_MOVED_PERMANENTLY,
 				['Location' => ['invalid']],
+				''
+			)
+		);
+
+		return $client;
+	}
+
+	private function getMockHttpClientWithEmptyInvalidRedirectUrl(): MockHttpClient
+	{
+		$client = new MockHttpClient();
+
+		$client->add(
+			new HttpRequest('http://example.com/a'),
+			new HttpResponse(
+				HttpStatusCode::S301_MOVED_PERMANENTLY,
+				[],
 				''
 			)
 		);

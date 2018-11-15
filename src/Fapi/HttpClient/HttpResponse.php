@@ -28,10 +28,6 @@ class HttpResponse
 
 		static::validateHeaders($headers);
 
-		if (!\is_string($body)) {
-			throw new InvalidArgumentException('Parameter body must be a string.');
-		}
-
 		$this->statusCode = $statusCode;
 		$this->headers = $headers;
 		$this->body = $body;

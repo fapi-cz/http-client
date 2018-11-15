@@ -26,10 +26,6 @@ class HttpRequest
 	 */
 	public function __construct(string $url, string $method = HttpMethod::GET, array $options = [])
 	{
-		if (!\is_string($url)) {
-			throw new InvalidArgumentException('Parameter url must be a string.');
-		}
-
 		if (!HttpMethod::isValid($method)) {
 			throw new InvalidArgumentException('Parameter method must be an HTTP method.');
 		}
@@ -50,53 +46,23 @@ class HttpRequest
 		foreach ($options as $key => $value) {
 			if ($key === 'form_params') {
 				static::validateFormParamsOption($value);
-
-				continue;
-			}
-
-			if ($key === 'headers') {
+			} elseif ($key === 'headers') {
 				static::validateHeadersOption($value);
-
-				continue;
-			}
-
-			if ($key === 'auth') {
+			} elseif ($key === 'auth') {
 				static::validateAuthOption($value);
-
-				continue;
-			}
-
-			if ($key === 'body') {
+			} elseif ($key === 'body') {
 				static::validateBodyOption($value);
-
-				continue;
-			}
-
-			if ($key === 'json') {
+			} elseif ($key === 'json') {
 				static::validateJsonOption($value);
-
-				continue;
-			}
-
-			if ($key === 'cookies') {
+			} elseif ($key === 'cookies') {
 				static::validateCookiesOption($value);
-
-				continue;
-			}
-
-			if ($key === 'timeout') {
+			} elseif ($key === 'timeout') {
 				static::validateTimeoutOption($value);
-
-				continue;
-			}
-
-			if ($key === 'connect_timeout') {
+			} elseif ($key === 'connect_timeout') {
 				static::validateConnectTimeoutOption($value);
-
-				continue;
+			} else {
+				throw new InvalidArgumentException("Option '$key' is not supported.");
 			}
-
-			throw new InvalidArgumentException("Option '$key' is not supported.");
 		}
 	}
 

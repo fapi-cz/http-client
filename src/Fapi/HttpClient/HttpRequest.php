@@ -50,23 +50,53 @@ class HttpRequest
 		foreach ($options as $key => $value) {
 			if ($key === 'form_params') {
 				static::validateFormParamsOption($value);
-			} elseif ($key === 'headers') {
-				static::validateHeadersOption($value);
-			} elseif ($key === 'auth') {
-				static::validateAuthOption($value);
-			} elseif ($key === 'body') {
-				static::validateBodyOption($value);
-			} elseif ($key === 'json') {
-				static::validateJsonOption($value);
-			} elseif ($key === 'cookies') {
-				static::validateCookiesOption($value);
-			} elseif ($key === 'timeout') {
-				static::validateTimeoutOption($value);
-			} elseif ($key === 'connect_timeout') {
-				static::validateConnectTimeoutOption($value);
-			} else {
-				throw new InvalidArgumentException("Option '$key' is not supported.");
+
+				continue;
 			}
+
+			if ($key === 'headers') {
+				static::validateHeadersOption($value);
+
+				continue;
+			}
+
+			if ($key === 'auth') {
+				static::validateAuthOption($value);
+
+				continue;
+			}
+
+			if ($key === 'body') {
+				static::validateBodyOption($value);
+
+				continue;
+			}
+
+			if ($key === 'json') {
+				static::validateJsonOption($value);
+
+				continue;
+			}
+
+			if ($key === 'cookies') {
+				static::validateCookiesOption($value);
+
+				continue;
+			}
+
+			if ($key === 'timeout') {
+				static::validateTimeoutOption($value);
+
+				continue;
+			}
+
+			if ($key === 'connect_timeout') {
+				static::validateConnectTimeoutOption($value);
+
+				continue;
+			}
+
+			throw new InvalidArgumentException("Option '$key' is not supported.");
 		}
 	}
 

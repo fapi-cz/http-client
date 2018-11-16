@@ -17,13 +17,31 @@ class CapturingHttpClient implements IHttpClient
 	/** @var HttpResponse[] */
 	private $httpResponses = [];
 
-	public function __construct(IHttpClient $httpClient)
+	/** @var string */
+	private $file;
+
+	/** @var string */
+	private $className;
+
+	public function __construct(IHttpClient $httpClient, string $file, string $className)
 	{
 		if (!\class_exists('Tester\Dumper')) {
 			throw new InvalidStateException('Capturing HTTP client requires Nette Tester.');
 		}
 
 		$this->httpClient = $httpClient;
+
+		if (\is_file($file)) {
+			require_once $file;
+			\spl_autoload($className);
+
+			if (\class_exists($className)) {
+				$this->httpClient = new $className();
+			}
+		}
+
+		$this->file = $file;
+		$this->className = $className;
 	}
 
 	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
@@ -40,7 +58,16 @@ class CapturingHttpClient implements IHttpClient
 		$this->httpResponses[] = $httpResponse;
 	}
 
-	public function writeToPhpFile(string $fileName, string $className)
+	public function close()
+	{
+		if ($this->httpClient instanceof $this->className) {
+			return;
+		}
+
+		$this->writeToPhpFile($this->file, $this->className);
+	}
+
+	private function writeToPhpFile(string $fileName, string $className)
 	{
 		\preg_match('#^(?:(.*)\\\\)?([^\\\\]+)\z#', $className, $match);
 		list(, $namespace, $className) = $match;

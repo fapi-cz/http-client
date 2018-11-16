@@ -13,7 +13,6 @@ class RedirectHelper
 	 * @param mixed[] $options
 	 * @param string $method
 	 * @return HttpResponse
-	 * @throws HttpClientException
 	 * @throws TooManyRedirectsException
 	 */
 	public static function followRedirects(

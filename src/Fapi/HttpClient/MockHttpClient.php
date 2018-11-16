@@ -20,9 +20,15 @@ class MockHttpClient implements IHttpClient
 
 	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
 	{
-		if (!isset($this->httpRequests[0]) || !$this->matchHttpRequest($this->httpRequests[0], $httpRequest)) {
-			throw new InvalidArgumentException('Invalid HTTP request.');
+		$expectedHttpRequest = \array_shift($this->httpRequests);
+
+		if (!$expectedHttpRequest) {
+			throw new InvalidArgumentException('Invalid HTTP request. No more requests found.');
 		}
+
+		$this->assertHttpRequestUrl($expectedHttpRequest, $httpRequest);
+		$this->assertHttpRequestMethod($expectedHttpRequest, $httpRequest);
+		$this->assertHttpRequestOptions($expectedHttpRequest, $httpRequest);
 
 		\array_shift($this->httpRequests);
 		/** @var HttpResponse $response */
@@ -36,11 +42,51 @@ class MockHttpClient implements IHttpClient
 		return !$this->httpRequests;
 	}
 
-	private function matchHttpRequest(HttpRequest $expected, HttpRequest $actual): bool
+	private function assertHttpRequestUrl(HttpRequest $expected, HttpRequest $actual)
 	{
-		return $expected->getUrl() === $actual->getUrl()
-			&& $expected->getMethod() === $actual->getMethod()
-			&& $expected->getOptions() === $actual->getOptions();
+		if ($expected->getUrl() === $actual->getUrl()) {
+			return;
+		}
+
+		$expectedUrl = $this->formatUrl($expected->getUrl());
+		$actualUrl = $this->formatUrl($actual->getUrl());
+
+		throw new InvalidArgumentException(
+			'Invalid HTTP request. Url not matched. Expected "'
+			. $expectedUrl . '" got "' . $actualUrl . '".'
+		);
+	}
+
+	private function assertHttpRequestMethod(HttpRequest $expected, HttpRequest $actual)
+	{
+		if ($expected->getMethod() === $actual->getMethod()) {
+			return;
+		}
+
+		throw new InvalidArgumentException(
+			'Invalid HTTP request. Method not matched. Expected "'
+			. $expected->getMethod() . '" got "' . $actual->getMethod() . '".'
+		);
+	}
+
+	private function assertHttpRequestOptions(HttpRequest $expected, HttpRequest $actual)
+	{
+		if ($expected->getOptions() === $actual->getOptions()) {
+			return;
+		}
+
+		throw new InvalidArgumentException(
+			'Invalid HTTP request. Options not matched.'
+		);
+	}
+
+	private function formatUrl(string $url): string
+	{
+		if (\strlen($url) > 250) {
+			return \substr($url, 200) . '...';
+		}
+
+		return $url;
 	}
 
 }

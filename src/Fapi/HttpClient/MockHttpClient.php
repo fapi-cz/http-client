@@ -20,12 +20,11 @@ class MockHttpClient implements IHttpClient
 
 	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
 	{
-		$expectedHttpRequest = \array_shift($this->httpRequests);
-
-		if (!$expectedHttpRequest) {
+		if (!isset($this->httpRequests[0])) {
 			throw new InvalidArgumentException('Invalid HTTP request. No more requests found.');
 		}
 
+		$expectedHttpRequest = $this->httpRequests[0];
 		$this->assertHttpRequestUrl($expectedHttpRequest, $httpRequest);
 		$this->assertHttpRequestMethod($expectedHttpRequest, $httpRequest);
 		$this->assertHttpRequestOptions($expectedHttpRequest, $httpRequest);

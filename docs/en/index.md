@@ -2,7 +2,7 @@ Extension
 ---
 ```yaml
 extensions:
-	httpClient: Fapi\HttpClient\DI\HttpClientExtension
+	httpClient: Fapi\HttpClient\Bidges\NetteDI\HttpClientExtension
 ```
 
 Configuration options
@@ -14,11 +14,16 @@ The default configuration options are
 httpClient:
 	type: guzzle
 	logging: false
+	bar: false
 ```
 
 Option `type` specifies the type of HTTP client to be used. Supported types are `guzzle` and `curl`.
 
 Option `logging` enables logging of all HTTP requests, HTTP responses and HTTP client errors.
+
+Option `bar` enables Tracy bar of all HTTP requests, HTTP responses and HTTP client errors.
+
+You can use only `logging` or `bar` option. Both are not allowed for now.
 
 Making HTTP requests
 --------------------

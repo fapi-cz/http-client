@@ -57,6 +57,10 @@ class HttpClientExtension extends CompilerExtension
 				->setType($httpClientClass)
 				->setAutowired(false);
 
+			$container->addDefinition($this->prefix('tracyToPsrLogger'))
+				->setType(\Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger::class)
+				->setAutowired(false);
+
 			$container->addDefinition($this->prefix('httpClient'))
 				->setType(IHttpClient::class)
 				->setFactory(LoggingHttpClient::class, [

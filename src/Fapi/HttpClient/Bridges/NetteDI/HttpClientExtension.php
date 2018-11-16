@@ -1,8 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Fapi\HttpClient\DI;
+namespace Fapi\HttpClient\Bidges\NetteDI;
 
+use Fapi\HttpClient\Bridges\Tracy\BarHttpClient;
 use Fapi\HttpClient\CurlHttpClient;
 use Fapi\HttpClient\GuzzleHttpClient;
 use Fapi\HttpClient\IHttpClient;
@@ -17,6 +18,7 @@ class HttpClientExtension extends CompilerExtension
 	public $defaults = [
 		'type' => 'guzzle',
 		'logging' => false,
+		'bar' => false,
 	];
 
 	/** @var string[] */
@@ -36,21 +38,37 @@ class HttpClientExtension extends CompilerExtension
 
 		$httpClientClass = $this->typeClasses[$config['type']];
 
+		if ($config['bar']) {
+			$container->addDefinition($this->prefix('barHttpClient'))
+				->setType($httpClientClass)
+				->setAutowired(false);
+
+			$container->addDefinition($this->prefix('httpClient'))
+				->setType(IHttpClient::class)
+				->setFactory(BarHttpClient::class, [
+					$this->prefix('@barHttpClient'),
+				]);
+
+			return;
+		}
+
 		if ($config['logging']) {
-			$container->addDefinition($this->prefix('innerHttpClient'))
+			$container->addDefinition($this->prefix('loggingHttpClient'))
 				->setType($httpClientClass)
 				->setAutowired(false);
 
 			$container->addDefinition($this->prefix('httpClient'))
 				->setType(IHttpClient::class)
 				->setFactory(LoggingHttpClient::class, [
-					$this->prefix('@innerHttpClient'),
+					$this->prefix('@loggingHttpClient'),
 				]);
-		} else {
-			$container->addDefinition($this->prefix('httpClient'))
-				->setType(IHttpClient::class)
-				->setFactory($httpClientClass);
+
+			return;
 		}
+
+		$container->addDefinition($this->prefix('httpClient'))
+			->setType(IHttpClient::class)
+			->setFactory($httpClientClass);
 	}
 
 }

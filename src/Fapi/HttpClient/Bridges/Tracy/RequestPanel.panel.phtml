@@ -1,0 +1,211 @@
+<?php
+namespace Fapi\HttpClient\Bridges\Tracy;
+?>
+<style class="tracy-debug">
+	#tracy-debug .http-client-panel {
+		background: white !important;
+	}
+
+	/*#tracy-debug .http-client-panel .data {*/
+	/*display: inline-block;*/
+	/*background-color: #F7F0CB;*/
+	/*padding: 3px;*/
+	/*}*/
+
+	#tracy-debug .http-client-panel .status {
+		font-family: "Source Sans Pro", sans-serif;
+		font-weight: 800;
+		font-size: 12px;
+		padding: 3px 5px;
+		margin-right: 6px;
+		border-radius: 3px;
+		text-transform: uppercase;
+		background-color: #999;
+		color: #ffffff;
+	}
+
+	#tracy-debug .http-client-panel .info {
+		background-color: #117a8b !important;
+	}
+
+	#tracy-debug .http-client-panel .ok {
+		background-color: #28a745 !important;
+	}
+
+	#tracy-debug .http-client-panel .redirect {
+		background-color: #007bff !important;
+	}
+
+	#tracy-debug .http-client-panel .bad-request {
+		background-color: #ffc107 !important;
+	}
+
+	#tracy-debug .http-client-panel .error {
+		background-color: #ed0039 !important;
+	}
+
+	#tracy-debug .http-client-panel .type {
+		font-family: "Source Sans Pro", sans-serif;
+		font-weight: 800;
+		font-size: 12px;
+		padding: 3px 5px;
+		margin-right: 6px;
+		border-radius: 3px;
+		text-transform: uppercase;
+		background-color: #3387CC;
+		color: #FFF;
+	}
+
+	#tracy-debug .http-client-panel .GET {
+		background-color: #28a745 !important;
+	}
+
+	#tracy-debug .http-client-panel .POST {
+		background-color: #007bff !important;
+	}
+
+	#tracy-debug .http-client-panel .DELETE {
+		background-color: #ed0039 !important;
+	}
+
+	#tracy-debug .http-client-panel .PUT {
+		background-color: #ffc107 !important;
+	}
+
+	#tracy-debug .http-client-panel .tracy-toggle {
+		color: #777 !important;
+	}
+
+	#tracy-debug .http-client-panel .tracy-toggle:hover {
+		color: #fff !important;
+	}
+
+	#tracy-debug .http-client-panel-time {
+		font-weight: bold;
+	}
+</style>
+
+<h1><?php
+
+	echo $count ?> requests, <?php echo $totalTime !== null ? \sprintf('%0.1f ms', $totalTime * 1000) : '' ?></h1>
+<div class="tracy-inner http-client-panel">
+	<table>
+		<tr>
+			<th class="http-client-panel-time">Time&nbsp;(ms)</th>
+			<th>Request</th>
+			<th>Response</th>
+		</tr>
+		<?php
+		foreach ($requests as $data):
+			$status = $data['status'];
+			$request = $data['request'];
+			$response = $data['response'] ?? null;
+			$exception = $data['exception'] ?? null;
+			$time = $data['time'] ?? null;
+			if ($time) {
+				$time *= 1000;
+			}
+			?>
+			<tr>
+				<td class="http-client-panel-time">
+					<?php echo $time ? \sprintf('%0.2f', $time) : '' ?>
+				</td>
+				<td class="http-client-panel">
+					<span class="type <?php echo $request['method']; ?>">
+						<?php echo $request['method']; ?>
+					</span>
+
+					<div class="data">
+						<?php echo $request['url']; ?>
+					</div>
+					<br>
+					<?php if (!empty($request['options'])): ?>
+						<a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .http-client-options">Options</a>
+						<table class="tracy-collapsed http-client-options">
+							<?php foreach ($request['options'] as $key => $value): ?>
+								<?php if (\is_array($value)): ?>
+									<?php foreach ($value as $innerKey => $item): ?>
+										<tr>
+											<td><?php echo $innerKey; ?></td>
+											<td><?php if (\is_string($item)) {
+													echo $item;
+												} else {
+													echo \json_encode($item);
+												} ?></td>
+										</tr>
+									<?php endforeach ?>
+									<?php continue; ?>
+								<?php endif ?>
+
+								<tr>
+									<td><?php echo $key; ?></td>
+									<td><?php if (\is_string($value)) {
+											echo $value;
+										} else {
+											echo \json_encode($value);
+										} ?></td>
+								</tr>
+							<?php endforeach ?>
+						</table>
+					<?php endif ?>
+				</td>
+				<?php if ($status === 'success'): ?>
+					<td class="http-client-panel">
+						<span class="status
+						<?php if ($response['status_code'] < 200): ?>
+						info
+						<?php elseif ($response['status_code'] >= 200 && $response['status_code'] < 300): ?>
+						ok
+						<?php elseif ($response['status_code'] >= 300 && $response['status_code'] < 400): ?>
+						redirect
+						<?php elseif ($response['status_code'] >= 400 && $response['status_code'] < 500): ?>
+						bad-request
+						<?php elseif ($response['status_code'] >= 500): ?>
+						error
+						<?php endif; ?>
+">
+						<?php echo $response['status_code']; ?>
+						</span>
+						<div class="data">
+							<?php echo \json_encode($response['body']); ?>
+						</div>
+						<br>
+						<a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .http-client-headers">Headers</a>
+						<table class="tracy-collapsed http-client-headers">
+							<?php foreach ($response['headers'] as $key => $value): ?>
+								<?php if (\is_array($value)): ?>
+									<?php foreach ($value as $innerKey => $item): ?>
+										<tr>
+											<td><?php echo $key . '-' . $innerKey; ?></td>
+											<td><?php if (\is_string($item)) {
+													echo $item;
+												} else {
+													echo \json_encode($item);
+												} ?></td>
+										</tr>
+									<?php endforeach ?>
+									<?php continue; ?>
+								<?php endif ?>
+
+								<tr>
+									<td><?php echo $key; ?></td>
+									<td><?php if (\is_string($value)) {
+											echo $value;
+										} else {
+											echo \json_encode($value);
+										} ?></td>
+								</tr>
+							<?php endforeach ?>
+						</table>
+					</td>
+				<?php endif ?>
+				<?php if ($status === 'failed'): ?>
+					<td class="http-client-panel">
+						<?php echo $exception; ?>
+					</td>
+				<?php endif ?>
+			</tr>
+		<?php endforeach ?>
+	</table>
+	<?php if (\count($requests) < $count): ?><p>...and more</p><?php endif ?>
+</div>

@@ -5,7 +5,8 @@ namespace Fapi\HttpClient;
 
 use Fapi\HttpClient\Utils\Json;
 use Fapi\HttpClient\Utils\JsonException;
-use Tracy\ILogger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 class LoggingHttpClient implements IHttpClient
 {
@@ -13,10 +14,10 @@ class LoggingHttpClient implements IHttpClient
 	/** @var IHttpClient */
 	private $httpClient;
 
-	/** @var ILogger */
+	/** @var LoggerInterface */
 	private $logger;
 
-	public function __construct(IHttpClient $httpClient, ILogger $logger)
+	public function __construct(IHttpClient $httpClient, LoggerInterface $logger)
 	{
 		$this->httpClient = $httpClient;
 		$this->logger = $logger;
@@ -44,7 +45,7 @@ class LoggingHttpClient implements IHttpClient
 		$this->log('an HTTP request has been sent.'
 			. $this->dumpHttpRequest($httpRequest)
 			. $this->dumpHttpResponse($httpResponse)
-			. $this->dumpElapsedTime($elapsedTime), ILogger::INFO);
+			. $this->dumpElapsedTime($elapsedTime), LogLevel::INFO);
 	}
 
 	private function logFailedRequest(HttpRequest $httpRequest, HttpClientException $exception, float $elapsedTime)
@@ -52,7 +53,7 @@ class LoggingHttpClient implements IHttpClient
 		$this->log('an HTTP request failed.'
 			. $this->dumpHttpRequest($httpRequest)
 			. $this->dumpException($exception)
-			. $this->dumpElapsedTime($elapsedTime), ILogger::WARNING);
+			. $this->dumpElapsedTime($elapsedTime), LogLevel::WARNING);
 	}
 
 	private function dumpHttpRequest(HttpRequest $httpRequest): string
@@ -104,7 +105,7 @@ class LoggingHttpClient implements IHttpClient
 
 	private function log(string $message, string $priority)
 	{
-		$this->logger->log('Fapi\HttpClient: ' . $message, $priority);
+		$this->logger->log($priority, 'Fapi\HttpClient: ' . $message);
 	}
 
 }

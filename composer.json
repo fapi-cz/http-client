@@ -15,7 +15,8 @@
   ],
   "require": {
 	"php": "^7.0",
-    "composer/ca-bundle": "^1.1"
+    "composer/ca-bundle": "^1.1",
+    "psr/log": "^1.0"
   },
   "require-dev": {
 	"ext-curl": "*",

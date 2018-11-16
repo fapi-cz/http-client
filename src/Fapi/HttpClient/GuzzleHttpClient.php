@@ -4,22 +4,22 @@ declare(strict_types = 1);
 namespace Fapi\HttpClient;
 
 use Composer\CaBundle\CaBundle;
-use GuzzleHttp;
+use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 
 class GuzzleHttpClient implements IHttpClient
 {
 
-	/** @var GuzzleHttp\Client */
+	/** @var Client */
 	private $client;
 
 	public function __construct()
 	{
-		if (!\class_exists('GuzzleHttp\Client')) {
+		if (!\class_exists('GuzzleHttp\\Client')) {
 			throw new InvalidStateException('Guzzle HTTP client requires Guzzle library to be installed.');
 		}
 
-		$this->client = new GuzzleHttp\Client();
+		$this->client = new Client();
 	}
 
 	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
@@ -39,7 +39,7 @@ class GuzzleHttpClient implements IHttpClient
 				(string) $response->getBody()
 			);
 
-		} catch (GuzzleHttp\Exception\TransferException $e) {
+		} catch (\GuzzleHttp\Exception\TransferException $e) {
 			if ($this->isTimeoutException($e)) {
 				throw new TimeLimitExceededException('Time limit for HTTP request exceeded.', $e->getCode(), $e);
 			}
@@ -63,7 +63,7 @@ class GuzzleHttpClient implements IHttpClient
 
 	private function isTimeoutException(\Throwable $e): bool
 	{
-		if (!$e instanceof GuzzleHttp\Exception\ConnectException) {
+		if (!$e instanceof \GuzzleHttp\Exception\ConnectException) {
 			return false;
 		}
 

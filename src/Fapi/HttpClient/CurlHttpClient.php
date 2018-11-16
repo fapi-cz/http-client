@@ -27,6 +27,7 @@ class CurlHttpClient implements IHttpClient
 		if ($result === false) {
 			$error = \curl_error($handle);
 			$errno = \curl_errno($handle);
+			\curl_close($handle);
 
 			if ($errno === \CURLE_OPERATION_TIMEOUTED) {
 				throw new TimeLimitExceededException($error, $errno);
@@ -37,12 +38,12 @@ class CurlHttpClient implements IHttpClient
 
 		$headerSize = \curl_getinfo($handle, \CURLINFO_HEADER_SIZE);
 		$header = \substr($result, 0, $headerSize);
-		$body = \substr($result, $headerSize);
 
-		$statusCode = \curl_getinfo($handle, \CURLINFO_HTTP_CODE);
 		$headers = $this->parseHeaders($header);
-		$httpResponse = new HttpResponse($statusCode, $headers, $body);
+		$body = \substr($result, $headerSize);
+		$statusCode = \curl_getinfo($handle, \CURLINFO_HTTP_CODE);
 
+		$httpResponse = new HttpResponse($statusCode, $headers, $body);
 		\curl_close($handle);
 
 		return $httpResponse;

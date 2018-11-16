@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
+use Composer\CaBundle\CaBundle;
 use Fapi\HttpClient\Utils\Json;
 
 class CurlHttpClient implements IHttpClient
@@ -56,8 +57,15 @@ class CurlHttpClient implements IHttpClient
 			\CURLOPT_CUSTOMREQUEST => $httpRequest->getMethod(),
 			\CURLOPT_RETURNTRANSFER => true,
 			\CURLOPT_HEADER => true,
-			\CURLOPT_CAINFO => __DIR__ . '/ca-bundle.pem',
 		]);
+
+		$caPathOrFile = CaBundle::getSystemCaRootBundlePath();
+
+		if (\is_dir($caPathOrFile) || (\is_link($caPathOrFile) && \is_dir(\readlink($caPathOrFile)))) {
+			\curl_setopt($handle, \CURLOPT_CAPATH, $caPathOrFile);
+		} else {
+			\curl_setopt($handle, \CURLOPT_CAINFO, $caPathOrFile);
+		}
 
 		return $handle;
 	}

@@ -3,7 +3,9 @@ declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
+use Composer\CaBundle\CaBundle;
 use GuzzleHttp;
+use GuzzleHttp\RequestOptions;
 
 class GuzzleHttpClient implements IHttpClient
 {
@@ -54,9 +56,8 @@ class GuzzleHttpClient implements IHttpClient
 	private function getDefaultOptions(): array
 	{
 		return [
-			'verify' => __DIR__ . '/ca-bundle.pem',
-			'exceptions' => false,
-			'allow_redirects' => false,
+			RequestOptions::VERIFY => CaBundle::getSystemCaRootBundlePath(),
+			RequestOptions::ALLOW_REDIRECTS => false,
 		];
 	}
 

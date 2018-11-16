@@ -20,14 +20,32 @@ final class TracyToPsrLoggerTest extends \Tester\TestCase
 		$logger = new TracyToPsrLogger(Debugger::getLogger());
 
 		$logger->log(LogLevel::INFO, 'test');
+		$logger->log(LogLevel::INFO, new \Exception('test'));
+		$logger->log(LogLevel::INFO, 'test with context', [
+			'user_id' => 5,
+		]);
 
+		Assert::true(\file_exists(__DIR__ . '/info.log'));
 		$logData = @\file_get_contents(__DIR__ . '/info.log');
 
 		Assert::type('string', $logData);
 	}
 
+	public function setUp()
+	{
+		$this->cleanUp();
+	}
+
 	public function tearDown()
 	{
+		$this->cleanUp();
+	}
+
+	private function cleanUp()
+	{
+		foreach (glob(__DIR__ . '/exception*') as $f) {
+			@\unlink($f);
+		}
 		FileSystem::delete(__DIR__ . '/info.log');
 	}
 

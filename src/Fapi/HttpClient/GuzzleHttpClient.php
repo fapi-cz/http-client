@@ -58,6 +58,7 @@ class GuzzleHttpClient implements IHttpClient
 		return [
 			RequestOptions::VERIFY => CaBundle::getSystemCaRootBundlePath(),
 			RequestOptions::ALLOW_REDIRECTS => false,
+			RequestOptions::HTTP_ERRORS => false,
 		];
 	}
 

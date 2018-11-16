@@ -167,7 +167,7 @@ namespace Fapi\HttpClient\Bridges\Tracy;
 						<?php echo $response['status_code']; ?>
 						</span>
 						<div class="data">
-							<?php echo \json_encode($response['body']); ?>
+							<?php echo $response['body']; ?>
 						</div>
 						<br>
 						<a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .http-client-headers">Headers</a>

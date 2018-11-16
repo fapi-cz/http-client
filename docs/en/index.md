@@ -140,10 +140,6 @@ use Tester\TestCase;
 
 class FooTest extends TestCase
 {
-	/**
-	 * @var bool
-	 */
-	private $generateMockHttpClient = true;
 
 	/**
 	 * @var CapturingHttpClient|FooMockHttpClient
@@ -153,22 +149,17 @@ class FooTest extends TestCase
 
 	public function __construct()
 	{
-		if ($this->generateMockHttpClient) {
-			$this->httpClient = new CapturingHttpClient(new GuzzleHttpClient());
-		} else {
-			$this->httpClient = new FooMockHttpClient();
-		}
+		$this->httpClient = new CapturingHttpClient(
+			new GuzzleHttpClient(),
+			__DIR__ . '/MockHttpClients/FooMockHttpClient.php',
+			'SampleProjectTests\MockHttpClients\FooMockHttpClient'
+		);
 	}
 
 
 	public function __destruct()
 	{
-		if ($this->generateMockHttpClient) {
-			$this->httpClient->writeToPhpFile(
-				__DIR__ . '/MockHttpClients/FooMockHttpClient.php',
-				'SampleProjectTests\MockHttpClients\FooMockHttpClient'
-			);
-		}
+		$this->httpClient->close();
 	}
 
 
@@ -180,11 +171,11 @@ class FooTest extends TestCase
 }
 ```
 
-After the test succeeds, you can switch the `$generateMockHttpClient` property to `false`. Whenever you run the test next time, it will be tested against the mock HTTP client.
+After the test succeeds, stored requests and responses are written to mock file. Next time you run tests MockHttpClient is used . 
 
-You can always update the mock HTTP client by setting the property back to `true` and running the test.
+You can always update the mock client by deleting generated file.
 
-It is recommended to commit passing test cases with `$generateMockHttpClient` set to `false`. The tests will then be deterministic. You will be able to run them even without an Intenet connection or when the remote service is down. Furthermore, they will run much faster.
+The tests will then be deterministic. You will be able to run them even without an Intenet connection or when the remote service is down. Furthermore, they will run much faster.
 
 REST HTTP client
 ----------------

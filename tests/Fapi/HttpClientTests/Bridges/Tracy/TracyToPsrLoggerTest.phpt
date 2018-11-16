@@ -43,9 +43,10 @@ final class TracyToPsrLoggerTest extends \Tester\TestCase
 
 	private function cleanUp()
 	{
-		foreach (glob(__DIR__ . '/exception*') as $f) {
+		foreach (\glob(__DIR__ . '/exception*') as $f) {
 			@\unlink($f);
 		}
+
 		FileSystem::delete(__DIR__ . '/info.log');
 	}
 

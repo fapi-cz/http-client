@@ -19,7 +19,7 @@ httpClient:
 
 Option `type` specifies the type of HTTP client to be used. Supported types are `guzzle` and `curl`.
 
-Option `logging` enables logging of all HTTP requests, HTTP responses and HTTP client errors.
+Option `logging` enables logging of all HTTP requests, HTTP responses and HTTP client errors. LoggingHttpClient supports Psr-3 `Psr\Log\LoggerInterface`. If you are using `Tracy\ILogger` you can use bridge `Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger` to convert tracy to psr logger.
 
 Option `bar` enables Tracy bar of all HTTP requests, HTTP responses and HTTP client errors.
 

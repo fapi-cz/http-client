@@ -8,7 +8,6 @@ use Fapi\HttpClient\HttpMethod;
 use Fapi\HttpClient\HttpRequest;
 use Fapi\HttpClient\HttpStatusCode;
 use Fapi\HttpClient\IHttpClient;
-use Fapi\HttpClient\InvalidArgumentException;
 use Fapi\HttpClient\Utils\Json;
 use Psr\Http\Message\ResponseInterface;
 

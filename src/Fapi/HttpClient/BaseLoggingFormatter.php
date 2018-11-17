@@ -27,18 +27,18 @@ final class BaseLoggingFormatter implements ILoggingFormatter
 			. $this->dumpElapsedTime($elapsedTime);
 	}
 
-	private function dumpHttpRequest(RequestInterface $httpRequest): string
+	private function dumpHttpRequest(RequestInterface $request): string
 	{
-		return ' Request URL: ' . $this->dumpValue((string) $httpRequest->getUri())
-			. ' Request method: ' . $this->dumpValue($httpRequest->getMethod())
-			. ' Request options: ' . $this->dumpValue($httpRequest->getHeaders());
+		return ' Request URL: ' . $this->dumpValue((string) $request->getUri())
+			. ' Request method: ' . $this->dumpValue($request->getMethod())
+			. ' Request options: ' . $this->dumpValue($request->getHeaders());
 	}
 
-	private function dumpHttpResponse(ResponseInterface $httpResponse): string
+	private function dumpHttpResponse(ResponseInterface $response): string
 	{
-		return ' Response status code: ' . $this->dumpValue($httpResponse->getStatusCode())
-			. ' Response headers: ' . $this->dumpValue($httpResponse->getHeaders())
-			. ' Response body: ' . $this->dumpValue($httpResponse->getBody());
+		return ' Response status code: ' . $this->dumpValue($response->getStatusCode())
+			. ' Response headers: ' . $this->dumpValue($response->getHeaders())
+			. ' Response body: ' . $this->dumpValue((string) $response->getBody());
 	}
 
 	private function dumpException(\Throwable $exception): string
@@ -58,7 +58,9 @@ final class BaseLoggingFormatter implements ILoggingFormatter
 
 	private function dumpElapsedTime(float $elapsedTime): string
 	{
-		return ' Elapsed time: ' . $this->dumpValue($elapsedTime);
+		$elapsedTime *= 1000;
+
+		return ' Elapsed time: ' . \sprintf('%0.2f', $elapsedTime) . ' ms';
 	}
 
 	/**

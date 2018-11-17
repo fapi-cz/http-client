@@ -6,6 +6,7 @@ namespace Fapi\HttpClient;
 use Composer\CaBundle\CaBundle;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -33,7 +34,14 @@ class GuzzleHttpClient implements IHttpClient
 
 		try {
 			$response = $this->client->send($request, $options + $this->getDefaultOptions());
-		} catch (\GuzzleHttp\Exception\TransferException $e) {
+			$response = new HttpResponse(
+				$response->getStatusCode(),
+				$response->getHeaders(),
+				$response->getBody(),
+				$response->getProtocolVersion(),
+				$response->getReasonPhrase()
+			);
+		} catch (TransferException $e) {
 			if ($this->isTimeoutException($e)) {
 				throw new TimeLimitExceededException('Time limit for HTTP request exceeded.', $e->getCode(), $e);
 			}

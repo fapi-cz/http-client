@@ -24,6 +24,9 @@ final class TracyToPsrLoggerTest extends \Tester\TestCase
 		$logger->log(LogLevel::INFO, 'test with context', [
 			'user_id' => 5,
 		]);
+		$logger->log(LogLevel::INFO, 'test with context', [
+			'exception' => new \Exception('test'),
+		]);
 
 		Assert::true(\file_exists(__DIR__ . '/info.log'));
 		$logData = @\file_get_contents(__DIR__ . '/info.log');

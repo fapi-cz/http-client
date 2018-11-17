@@ -63,10 +63,6 @@ class RestClient
 	 */
 	public function getResource(string $path, int $id, array $parameters = [])
 	{
-		if (!\is_int($id)) {
-			throw new InvalidArgumentException('Parameter id must be an integer.');
-		}
-
 		$path .= '/' . $id;
 
 		if ($parameters) {
@@ -130,10 +126,6 @@ class RestClient
 	 */
 	public function updateResource(string $path, int $id, array $data): array
 	{
-		if (!\is_int($id)) {
-			throw new InvalidArgumentException('Parameter id must be an integer.');
-		}
-
 		$httpResponse = $this->sendHttpRequest(HttpMethod::PUT, $path . '/' . $id, $data);
 
 		if ($httpResponse->getStatusCode() === HttpStatusCode::S200_OK) {
@@ -145,10 +137,6 @@ class RestClient
 
 	public function deleteResource(string $path, int $id)
 	{
-		if (!\is_int($id)) {
-			throw new InvalidArgumentException('Parameter id must be an integer.');
-		}
-
 		$httpResponse = $this->sendHttpRequest(HttpMethod::DELETE, $path . '/' . $id);
 
 		if (!\in_array($httpResponse->getStatusCode(), [HttpStatusCode::S200_OK, HttpStatusCode::S204_NO_CONTENT], true)) {

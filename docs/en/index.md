@@ -19,14 +19,31 @@ httpClient:
 
 Option `type` specifies the type of HTTP client to be used. Supported types are `guzzle` and `curl`.
 
-Option `logging` enables logging of all HTTP requests, HTTP responses and HTTP client errors. Logging supports Psr-3 `Psr\Log\LoggerInterface`. If you are using `Tracy\ILogger` you can use bridge `Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger` to convert tracy to psr logger.
+Option `logging` enables logging of all HTTP requests, HTTP responses and HTTP client errors.
 
 Option `bar` enables Tracy bar of all HTTP requests, HTTP responses and HTTP client errors.
 
 You can use only `logging` or `bar` option. Both are not allowed for now.
 
-Making HTTP requests
---------------------
+## LoggingHttpClient
+Logging supports Psr-3 `Psr\Log\LoggerInterface`. If you are using `Tracy\ILogger` you can use bridge `Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger` to convert tracy to psr logger.
+
+Log formatting:
+
+You can create your own logging formatter. By implementing `ILoggingFormatter` and then passing your formatter into `LoggerHttpClient` as 3rd argument.
+By default `BaseLoggingFormatter` is used.
+
+```php
+$loggingClient = new LoggingHttpClient(
+	$httpClient,
+	new TracyToPsrLogger(Debugger::getLogger()),
+	new MyCustomLoggingFormatter()
+);
+
+```
+
+## Making HTTP requests
+
 
 Downloading Google homepage is as easy as
 
@@ -37,8 +54,8 @@ $httpResponse = $httpClient->sendRequest($httpRequest);
 
 The HTTP response object has methods for retrieving status code, response headers and response body.
 
-HTTP request options
---------------------
+## HTTP request options
+
 
 Option `form_params` can be used for making POST request with `Content-Type: application/x-www-form-urlencoded`.
 
@@ -108,8 +125,8 @@ $httpRequest = HttpRequest::from('https://www.example.com/', HttpMethod::GET, [
 ]);
 ```
 
-Redirects
----------
+## Redirects
+
 
 If you want to follow redirects, use RedirectHelper after sending HTTP request.
 
@@ -118,8 +135,8 @@ $httpResponse = $httpClient->sendHttpRequest($httpRequest);
 $httpResponse = RedirectHelper::followRedirects($httpClient, $httpResponse, $originHttpRequest);
 ```
 
-Mocking HTTP clients
---------------------
+## Mocking HTTP clients
+
 
 Let's assume you want to test class `Foo` which uses an HTTP client.
 
@@ -173,7 +190,7 @@ You can always update the mock client by deleting generated file.
 
 The tests will then be deterministic. You will be able to run them even without an Intenet connection or when the remote service is down. Furthermore, they will run much faster.
 
-REST HTTP client
-----------------
+## REST HTTP client
+
 
 You can use class `RestClient` for accessing JSON REST APIs protected by HTTP basic authentication. It provides methods for creating, getting, updating and deleting resources.

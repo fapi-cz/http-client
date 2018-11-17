@@ -19,7 +19,7 @@ final class HttpResponseTest extends TestCase
 		$response = new HttpResponse(HttpStatusCode::S200_OK, [], 'test');
 
 		Assert::equal(HttpStatusCode::S200_OK, $response->getStatusCode());
-		Assert::equal('test', $response->getBody());
+		Assert::equal('test', (string) $response->getBody());
 		Assert::equal([], $response->getHeaders());
 
 		Assert::exception(static function () {

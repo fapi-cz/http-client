@@ -14,9 +14,9 @@ final class SampleMockHttpClient extends MockHttpClient
 	{
 		$this->add(
 			new HttpRequest(
-				'http://localhost/',
 				'GET',
-				['headers' => ['User-Agent' => 'Nette Tester']]
+				'http://localhost/1',
+				['Host' => ['localhost'], 'User-Agent' => ['Nette Tester']]
 			),
 			new HttpResponse(
 				200,

@@ -5,6 +5,8 @@ namespace Fapi\HttpClient;
 
 use Fapi\HttpClient\Utils\Json;
 use Fapi\HttpClient\Utils\JsonException;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
@@ -23,24 +25,24 @@ class LoggingHttpClient implements IHttpClient
 		$this->logger = $logger;
 	}
 
-	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
+	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
 		$startedAt = \microtime(true);
 
 		try {
-			$httpResponse = $this->httpClient->sendHttpRequest($httpRequest);
+			$response = $this->httpClient->sendRequest($request);
 		} catch (HttpClientException $e) {
-			$this->logFailedRequest($httpRequest, $e, \microtime(true) - $startedAt);
+			$this->logFailedRequest($request, $e, \microtime(true) - $startedAt);
 
 			throw $e;
 		}
 
-		$this->logSuccessfulRequest($httpRequest, $httpResponse, \microtime(true) - $startedAt);
+		$this->logSuccessfulRequest($request, $response, \microtime(true) - $startedAt);
 
-		return $httpResponse;
+		return $response;
 	}
 
-	private function logSuccessfulRequest(HttpRequest $httpRequest, HttpResponse $httpResponse, float $elapsedTime)
+	private function logSuccessfulRequest(RequestInterface $httpRequest, ResponseInterface $httpResponse, float $elapsedTime)
 	{
 		$this->log('an HTTP request has been sent.'
 			. $this->dumpHttpRequest($httpRequest)
@@ -48,7 +50,7 @@ class LoggingHttpClient implements IHttpClient
 			. $this->dumpElapsedTime($elapsedTime), LogLevel::INFO);
 	}
 
-	private function logFailedRequest(HttpRequest $httpRequest, HttpClientException $exception, float $elapsedTime)
+	private function logFailedRequest(RequestInterface $httpRequest, HttpClientException $exception, float $elapsedTime)
 	{
 		$this->log('an HTTP request failed.'
 			. $this->dumpHttpRequest($httpRequest)
@@ -56,14 +58,14 @@ class LoggingHttpClient implements IHttpClient
 			. $this->dumpElapsedTime($elapsedTime), LogLevel::WARNING);
 	}
 
-	private function dumpHttpRequest(HttpRequest $httpRequest): string
+	private function dumpHttpRequest(RequestInterface $httpRequest): string
 	{
-		return ' Request URL: ' . $this->dumpValue($httpRequest->getUrl())
+		return ' Request URL: ' . $this->dumpValue((string) $httpRequest->getUri())
 			. ' Request method: ' . $this->dumpValue($httpRequest->getMethod())
-			. ' Request options: ' . $this->dumpValue($httpRequest->getOptions());
+			. ' Request options: ' . $this->dumpValue($httpRequest->getHeaders());
 	}
 
-	private function dumpHttpResponse(HttpResponse $httpResponse): string
+	private function dumpHttpResponse(ResponseInterface $httpResponse): string
 	{
 		return ' Response status code: ' . $this->dumpValue($httpResponse->getStatusCode())
 			. ' Response headers: ' . $this->dumpValue($httpResponse->getHeaders())

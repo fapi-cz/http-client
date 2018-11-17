@@ -19,7 +19,7 @@ final class MockHttpClientTest extends \Tester\TestCase
 		$mockClient = new MockHttpClient();
 
 		Assert::exception(static function () use ($mockClient) {
-			$mockClient->sendHttpRequest(new HttpRequest('not.match.com/1'));
+			$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com/1'));
 		}, InvalidArgumentException::class,
 			'Invalid HTTP request. No more requests found.');
 	}
@@ -27,10 +27,10 @@ final class MockHttpClientTest extends \Tester\TestCase
 	public function testUrlNotMatch()
 	{
 		$mockClient = new MockHttpClient();
-		$mockClient->add(new HttpRequest('not.match.com'), new HttpResponse(200, [], ''));
+		$mockClient->add(new HttpRequest('GET', 'not.match.com'), new HttpResponse(200, [], ''));
 
 		Assert::exception(static function () use ($mockClient) {
-			$mockClient->sendHttpRequest(new HttpRequest('not.match.com/1'));
+			$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com/1'));
 		}, InvalidArgumentException::class,
 			'Invalid HTTP request. Url not matched. Expected "not.match.com" got "not.match.com/1".');
 	}
@@ -38,10 +38,10 @@ final class MockHttpClientTest extends \Tester\TestCase
 	public function testMethodNotMatch()
 	{
 		$mockClient = new MockHttpClient();
-		$mockClient->add(new HttpRequest('not.match.com'), new HttpResponse(200, [], ''));
+		$mockClient->add(new HttpRequest('GET', 'not.match.com'), new HttpResponse(200, [], ''));
 
 		Assert::exception(static function () use ($mockClient) {
-			$mockClient->sendHttpRequest(new HttpRequest('not.match.com', 'POST'));
+			$mockClient->sendRequest(new HttpRequest('POST', 'not.match.com'));
 		}, InvalidArgumentException::class,
 			'Invalid HTTP request. Method not matched. Expected "GET" got "POST".');
 	}
@@ -49,10 +49,10 @@ final class MockHttpClientTest extends \Tester\TestCase
 	public function testOptionsNotMatch()
 	{
 		$mockClient = new MockHttpClient();
-		$mockClient->add(new HttpRequest('not.match.com'), new HttpResponse(200, [], ''));
+		$mockClient->add(new HttpRequest('GET', 'not.match.com'), new HttpResponse(200, [], ''));
 
 		Assert::exception(static function () use ($mockClient) {
-			$mockClient->sendHttpRequest(new HttpRequest('not.match.com', 'GET', [
+			$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com', [
 				'headers' => [],
 			]));
 		}, InvalidArgumentException::class,

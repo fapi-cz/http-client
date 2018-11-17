@@ -8,22 +8,23 @@ use Fapi\HttpClient\HttpRequest;
 use Fapi\HttpClient\InvalidArgumentException;
 use GuzzleHttp\Cookie\CookieJar;
 use Tester\Assert;
+use Tester\TestCase;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
-final class HttpRequestTest extends \Tester\TestCase
+final class HttpRequestTest extends TestCase
 {
 
 	public function testDefault()
 	{
-		$request = new HttpRequest('test.cz');
+		$request = HttpRequest::from('test.cz');
 
-		Assert::equal('test.cz', $request->getUrl());
+		Assert::equal('test.cz', (string) $request->getUri());
 		Assert::equal(HttpMethod::GET, $request->getMethod());
-		Assert::equal([], $request->getOptions());
+		Assert::equal([], $request->getHeaders());
 
 		Assert::exception(static function () {
-			new HttpRequest('test.cz', 'asdf');
+			HttpRequest::from('test.cz', 'asdf');
 		}, InvalidArgumentException::class);
 	}
 
@@ -33,7 +34,7 @@ final class HttpRequestTest extends \Tester\TestCase
 	 */
 	public function testValidHeaders(array $headers = [])
 	{
-		new HttpRequest('test.cz', HttpMethod::GET, $headers);
+		HttpRequest::from('test.cz', HttpMethod::GET, $headers);
 
 		Assert::true(true);
 	}
@@ -45,7 +46,7 @@ final class HttpRequestTest extends \Tester\TestCase
 	public function testInvalidHeaders(array $headers = [])
 	{
 		Assert::exception(static function () use ($headers) {
-			new HttpRequest('test.cz', HttpMethod::GET, $headers);
+			HttpRequest::from('test.cz', HttpMethod::GET, $headers);
 		}, InvalidArgumentException::class);
 	}
 
@@ -163,11 +164,6 @@ final class HttpRequestTest extends \Tester\TestCase
 			[
 				'headers' => [
 					'json' => ["bad utf\xFF"],
-				],
-			],
-			[
-				'headers' => [
-					'cookies' => '',
 				],
 			],
 			[

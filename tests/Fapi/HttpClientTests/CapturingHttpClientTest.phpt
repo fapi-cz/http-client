@@ -36,8 +36,8 @@ class CapturingHttpClientTest extends TestCase
 
 	public function testWriteToMockPhpFile()
 	{
-		$mockHttpRequest = new HttpRequest(
-			'http://localhost/',
+		$mockHttpRequest = HttpRequest::from(
+			'http://localhost/1',
 			HttpMethod::GET,
 			[
 				'headers' => [
@@ -61,7 +61,7 @@ class CapturingHttpClientTest extends TestCase
 
 		$fileName = FileMock::create('', '.php');
 		$capturingHttpClient = new CapturingHttpClient($mockHttpClient, $fileName, 'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient');
-		$capturingHttpClient->sendHttpRequest($mockHttpRequest);
+		$capturingHttpClient->sendRequest($mockHttpRequest);
 
 		$capturingHttpClient->close();
 
@@ -72,8 +72,8 @@ class CapturingHttpClientTest extends TestCase
 
 	public function testWriteToPhpFile()
 	{
-		$mockHttpRequest = new HttpRequest(
-			'http://localhost/',
+		$mockHttpRequest = HttpRequest::from(
+			'http://localhost/2',
 			HttpMethod::GET,
 			[
 				'headers' => [
@@ -96,7 +96,7 @@ class CapturingHttpClientTest extends TestCase
 		$mockHttpClient->add($mockHttpRequest, $mockHttpResponse);
 
 		$capturingHttpClient = new CapturingHttpClient($mockHttpClient, $this->file, 'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient2');
-		$capturingHttpClient->sendHttpRequest($mockHttpRequest);
+		$capturingHttpClient->sendRequest($mockHttpRequest);
 
 		$capturingHttpClient->close();
 
@@ -108,7 +108,7 @@ class CapturingHttpClientTest extends TestCase
 		Assert::type($mockHttpClient, $httpClient);
 
 		$capturingHttpClient = new CapturingHttpClient($mockHttpClient, $this->file, 'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient2');
-		$capturingHttpClient->sendHttpRequest($mockHttpRequest);
+		$capturingHttpClient->sendRequest($mockHttpRequest);
 
 		$capturingHttpClient->close();
 

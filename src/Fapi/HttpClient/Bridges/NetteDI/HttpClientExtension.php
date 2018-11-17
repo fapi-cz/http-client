@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Fapi\HttpClient\Bidges\NetteDI;
 
 use Fapi\HttpClient\Bridges\Tracy\BarHttpClient;
+use Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger;
 use Fapi\HttpClient\CurlHttpClient;
 use Fapi\HttpClient\GuzzleHttpClient;
 use Fapi\HttpClient\IHttpClient;
@@ -58,7 +59,7 @@ class HttpClientExtension extends CompilerExtension
 				->setAutowired(false);
 
 			$container->addDefinition($this->prefix('tracyToPsrLogger'))
-				->setType(\Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger::class)
+				->setType(TracyToPsrLogger::class)
 				->setAutowired(false);
 
 			$container->addDefinition($this->prefix('httpClient'))

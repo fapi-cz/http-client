@@ -3,52 +3,55 @@ declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 class MockHttpClient implements IHttpClient
 {
 
-	/** @var HttpRequest[] */
-	private $httpRequests = [];
+	/** @var RequestInterface[] */
+	private $requests = [];
 
-	/** @var HttpResponse[] */
-	private $httpResponses = [];
+	/** @var ResponseInterface[] */
+	private $responses = [];
 
-	public function add(HttpRequest $httpRequest, HttpResponse $httpResponse)
+	public function add(RequestInterface $request, ResponseInterface $response)
 	{
-		$this->httpRequests[] = $httpRequest;
-		$this->httpResponses[] = $httpResponse;
+		$this->requests[] = $request;
+		$this->responses[] = $response;
 	}
 
-	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
+	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
-		if (!isset($this->httpRequests[0])) {
+		if (!isset($this->requests[0])) {
 			throw new InvalidArgumentException('Invalid HTTP request. No more requests found.');
 		}
 
-		$expectedHttpRequest = $this->httpRequests[0];
-		$this->assertHttpRequestUrl($expectedHttpRequest, $httpRequest);
-		$this->assertHttpRequestMethod($expectedHttpRequest, $httpRequest);
-		$this->assertHttpRequestOptions($expectedHttpRequest, $httpRequest);
+		$expectedRequest = $this->requests[0];
+		$this->assertHttpRequestUrl($expectedRequest, $request);
+		$this->assertHttpRequestMethod($expectedRequest, $request);
+		$this->assertHttpRequestOptions($expectedRequest, $request);
 
-		\array_shift($this->httpRequests);
+		\array_shift($this->requests);
 		/** @var HttpResponse $response */
-		$response = \array_shift($this->httpResponses);
+		$response = \array_shift($this->responses);
 
 		return $response;
 	}
 
 	public function wereAllHttpRequestsSent(): bool
 	{
-		return !$this->httpRequests;
+		return !$this->requests;
 	}
 
-	private function assertHttpRequestUrl(HttpRequest $expected, HttpRequest $actual)
+	private function assertHttpRequestUrl(RequestInterface $expected, RequestInterface $actual)
 	{
-		if ($expected->getUrl() === $actual->getUrl()) {
+		if ((string) $expected->getUri() === (string) $actual->getUri()) {
 			return;
 		}
 
-		$expectedUrl = $this->formatUrl($expected->getUrl());
-		$actualUrl = $this->formatUrl($actual->getUrl());
+		$expectedUrl = $this->formatUrl((string) $expected->getUri());
+		$actualUrl = $this->formatUrl((string) $actual->getUri());
 
 		throw new InvalidArgumentException(
 			'Invalid HTTP request. Url not matched. Expected "'
@@ -56,7 +59,7 @@ class MockHttpClient implements IHttpClient
 		);
 	}
 
-	private function assertHttpRequestMethod(HttpRequest $expected, HttpRequest $actual)
+	private function assertHttpRequestMethod(RequestInterface $expected, RequestInterface $actual)
 	{
 		if ($expected->getMethod() === $actual->getMethod()) {
 			return;
@@ -68,9 +71,9 @@ class MockHttpClient implements IHttpClient
 		);
 	}
 
-	private function assertHttpRequestOptions(HttpRequest $expected, HttpRequest $actual)
+	private function assertHttpRequestOptions(RequestInterface $expected, RequestInterface $actual)
 	{
-		if ($expected->getOptions() === $actual->getOptions()) {
+		if ($expected->getHeaders() === $actual->getHeaders()) {
 			return;
 		}
 

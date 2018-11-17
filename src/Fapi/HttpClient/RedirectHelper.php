@@ -3,34 +3,28 @@ declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
+use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 class RedirectHelper
 {
 
-	/**
-	 * @param IHttpClient $httpClient
-	 * @param HttpResponse $httpResponse
-	 * @param int $limit
-	 * @param mixed[] $options
-	 * @param string $method
-	 * @return HttpResponse
-	 * @throws TooManyRedirectsException
-	 */
 	public static function followRedirects(
 		IHttpClient $httpClient,
-		HttpResponse $httpResponse,
-		int $limit = 5,
-		array $options = [],
-		string $method = HttpMethod::GET
-	): HttpResponse {
+		ResponseInterface $response,
+		RequestInterface $request,
+		int $limit = 5
+	): ResponseInterface {
 		for ($count = 0; $count < $limit; $count++) {
-			$redirectUrl = static::getRedirectUrl($httpResponse);
+			$redirectUrl = static::getRedirectUrl($response);
 
 			if ($redirectUrl === null) {
-				return $httpResponse;
+				return $response;
 			}
 
-			$httpRequest = new HttpRequest($redirectUrl, $method, $options);
-			$httpResponse = $httpClient->sendHttpRequest($httpRequest);
+			$request = $request->withUri(new Uri($redirectUrl));
+			$response = $httpClient->sendRequest($request);
 		}
 
 		throw new TooManyRedirectsException('Maximum number of redirections exceeded.');
@@ -39,7 +33,7 @@ class RedirectHelper
 	/**
 	 * @return string|null
 	 */
-	private static function getRedirectUrl(HttpResponse $httpResponse)
+	private static function getRedirectUrl(ResponseInterface $httpResponse)
 	{
 		if (!static::isRedirectionStatusCode($httpResponse->getStatusCode())) {
 			return null;

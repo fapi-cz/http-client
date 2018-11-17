@@ -5,65 +5,89 @@ namespace Fapi\HttpClient;
 
 use Fapi\HttpClient\Utils\Json;
 use Fapi\HttpClient\Utils\JsonException;
-use GuzzleHttp\Cookie\CookieJarInterface;
 
-class HttpRequest
+class HttpRequest extends \GuzzleHttp\Psr7\Request
 {
 
-	/** @var string */
-	private $url;
+	/**
+	 * @param \Psr\Http\Message\UriInterface|string $uri
+	 * @param string $method
+	 * @param mixed[] $headers
+	 */
+	public static function from($uri, string $method = HttpMethod::GET, array $headers = []): HttpRequest
+	{
+		$body = null;
+		$headers = static::preProcessHeaders($headers, $body);
 
-	/** @var string */
-	private $method;
-
-	/** @var mixed[] */
-	private $options;
+		return new self($method, $uri, $headers, $body);
+	}
 
 	/**
-	 * @param string $url
-	 * @param string $method
-	 * @param mixed[] $options
+	 * @inheritdoc
 	 */
-	public function __construct(string $url, string $method = HttpMethod::GET, array $options = [])
+	public function __construct(string $method, $uri, array $headers = [], $body = null, string $version = '1.1')
 	{
 		if (!HttpMethod::isValid($method)) {
 			throw new InvalidArgumentException('Parameter method must be an HTTP method.');
 		}
 
-		static::validateOptions($options);
-
-		$this->url = $url;
-		$this->method = $method;
-		$this->options = $options;
+		parent::__construct($method, $uri, $headers, $body, $version);
 	}
 
 	/**
 	 * @param mixed[] $options
-	 * @return void
+	 * @param \Psr\Http\Message\StreamInterface|string $body
+	 * @return mixed[]
 	 */
-	private static function validateOptions(array $options)
+	private static function preProcessHeaders(array $options, &$body): array
 	{
-		foreach ($options as $key => $value) {
-			if ($key === 'form_params') {
-				static::validateFormParamsOption($value);
-			} elseif ($key === 'headers') {
-				static::validateHeadersOption($value);
-			} elseif ($key === 'auth') {
-				static::validateAuthOption($value);
-			} elseif ($key === 'body') {
-				static::validateBodyOption($value);
-			} elseif ($key === 'json') {
-				static::validateJsonOption($value);
-			} elseif ($key === 'cookies') {
-				static::validateCookiesOption($value);
-			} elseif ($key === 'timeout') {
-				static::validateTimeoutOption($value);
-			} elseif ($key === 'connect_timeout') {
-				static::validateConnectTimeoutOption($value);
-			} else {
-				throw new InvalidArgumentException("Option '$key' is not supported.");
-			}
+		$data = [];
+
+		if (isset($options['form_params'])) {
+			$value = $options['form_params'];
+			static::validateFormParamsOption($value);
+			$body = \http_build_query($value, '', '&');
+			$data['Content-Type'] = 'application/x-www-form-urlencoded';
 		}
+
+		if (isset($options['headers'])) {
+			$value = $options['headers'];
+			static::validateHeadersOption($value);
+			$data += $value;
+		}
+
+		if (isset($options['auth'])) {
+			$value = $options['auth'];
+			static::validateAuthOption($value);
+			$data['Authorization'] = 'Basic ' . \base64_encode($value[0] . ':' . $value[1]);
+		}
+
+		if (isset($options['body'])) {
+			$value = $options['body'];
+			static::validateBodyOption($value);
+			$body = $value;
+		}
+
+		if (isset($options['json'])) {
+			$value = $options['json'];
+			static::validateJsonOption($value);
+			$body = Json::encode($value);
+			$data['Content-Type'] = 'application/json';
+		}
+
+		if (isset($options['timeout'])) {
+			$value = $options['timeout'];
+			static::validateTimeoutOption($value);
+			$data['timeout'] = $value;
+		}
+
+		if (isset($options['connect_timeout'])) {
+			$value = $options['connect_timeout'];
+			static::validateConnectTimeoutOption($value);
+			$data['connect_timeout'] = $value;
+		}
+
+		return $data;
 	}
 
 	/**
@@ -154,17 +178,6 @@ class HttpRequest
 	}
 
 	/**
-	 * @param mixed $cookies
-	 * @return void
-	 */
-	private static function validateCookiesOption($cookies)
-	{
-		if ($cookies !== null && !$cookies instanceof CookieJarInterface) {
-			throw new InvalidArgumentException('Option cookies must be an instance of CookieJarInterface or null.');
-		}
-	}
-
-	/**
 	 * @param mixed $timeout
 	 * @return void
 	 */
@@ -184,24 +197,6 @@ class HttpRequest
 		if ($connectTimeout !== null && !\is_int($connectTimeout)) {
 			throw new InvalidArgumentException('Option connectTimeout must be an integer or null.');
 		}
-	}
-
-	public function getUrl(): string
-	{
-		return $this->url;
-	}
-
-	public function getMethod(): string
-	{
-		return $this->method;
-	}
-
-	/**
-	 * @return mixed[]
-	 */
-	public function getOptions(): array
-	{
-		return $this->options;
 	}
 
 }

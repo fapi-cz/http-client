@@ -38,14 +38,14 @@ abstract class BaseHttpClient extends TestCase
 	public function testSendHttpRequest(string $url, string $method, array $options, string $expectedBody)
 	{
 		$runner = new MockHttpServerRunner();
-		$httpRequest = new HttpRequest($url, $method, $options);
+		$httpRequest = HttpRequest::from($url, $method, $options);
 		$httpClient = $this->httpClient;
 
 		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient, $httpRequest, $expectedBody) {
-			$httpResponse = $httpClient->sendHttpRequest($httpRequest);
+			$httpResponse = $httpClient->sendRequest($httpRequest);
 			$headers = $httpResponse->getHeaders();
 
-			Assert::same($expectedBody, $httpResponse->getBody());
+			Assert::same($expectedBody, (string) $httpResponse->getBody());
 			Assert::same(HttpStatusCode::S200_OK, $httpResponse->getStatusCode());
 			Assert::same(['text/plain'], $headers['Content-Type']);
 
@@ -120,14 +120,14 @@ abstract class BaseHttpClient extends TestCase
 		$httpClient = $this->httpClient;
 
 		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient) {
-			$httpRequest = new HttpRequest('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
+			$httpRequest = HttpRequest::from('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
 				'timeout' => 3,
 			]);
 
-			$httpResponse = $httpClient->sendHttpRequest($httpRequest);
+			$httpResponse = $httpClient->sendRequest($httpRequest);
 			$headers = $httpResponse->getHeaders();
 
-			Assert::same("OK\n", $httpResponse->getBody());
+			Assert::same("OK\n", (string) $httpResponse->getBody());
 			Assert::same(HttpStatusCode::S200_OK, $httpResponse->getStatusCode());
 			Assert::same(['text/plain'], $headers['Content-Type']);
 
@@ -143,12 +143,12 @@ abstract class BaseHttpClient extends TestCase
 		$httpClient = $this->httpClient;
 
 		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient) {
-			$httpRequest = new HttpRequest('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
+			$httpRequest = HttpRequest::from('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
 				'timeout' => 1,
 			]);
 
 			Assert::exception(static function () use ($httpClient, $httpRequest) {
-				$httpClient->sendHttpRequest($httpRequest);
+				$httpClient->sendRequest($httpRequest);
 			}, TimeLimitExceededException::class);
 
 			$runner->stop();
@@ -163,16 +163,16 @@ abstract class BaseHttpClient extends TestCase
 		$httpClient = $this->httpClient;
 
 		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient) {
-			$httpRequest = new HttpRequest('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
+			$httpRequest = HttpRequest::from('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
 				'connect_timeout' => 1,
 			]);
 
-			$httpResponse = $httpClient->sendHttpRequest($httpRequest);
+			$httpResponse = $httpClient->sendRequest($httpRequest);
 			$headers = $httpResponse->getHeaders();
 
 			Assert::same(HttpStatusCode::S200_OK, $httpResponse->getStatusCode());
 			Assert::same(['text/plain'], $headers['Content-Type']);
-			Assert::same("OK\n", $httpResponse->getBody());
+			Assert::same("OK\n", (string) $httpResponse->getBody());
 
 			$runner->stop();
 		};
@@ -183,12 +183,12 @@ abstract class BaseHttpClient extends TestCase
 //	public function testSendHttpRequestWithExceededConnectTimeout()
 //	{
 //		$httpClient = $this->httpClient;
-//		$httpRequest = new HttpRequest('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
+//		$httpRequest = HttpRequest::from(HttpMethod::GET, 'http://127.0.0.1:1337/delayed', [
 //			'connect_timeout' => 1,
 //		]);
 //
 //		Assert::exception(static function () use ($httpClient, $httpRequest) {
-//			$httpClient->sendHttpRequest($httpRequest);
+//			$httpClient->sendRequest($httpRequest);
 //		}, TimeLimitExceededException::class);
 //	}
 

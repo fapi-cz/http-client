@@ -5,7 +5,10 @@ namespace Fapi\HttpClient;
 
 use Composer\CaBundle\CaBundle;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class GuzzleHttpClient implements IHttpClient
 {
@@ -22,23 +25,14 @@ class GuzzleHttpClient implements IHttpClient
 		$this->client = new Client();
 	}
 
-	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
+	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
-		$options = $httpRequest->getOptions() + $this->getDefaultOptions();
+		$options = $this->processOptions($request);
+		$request = $request->withoutHeader('timeout')
+			->withoutHeader('connect_timeout');
 
 		try {
-			$response = $this->client->request(
-				$httpRequest->getMethod(),
-				$httpRequest->getUrl(),
-				$options
-			);
-
-			$httpResponse = new HttpResponse(
-				$response->getStatusCode(),
-				$response->getHeaders(),
-				(string) $response->getBody()
-			);
-
+			$response = $this->client->send($request, $options + $this->getDefaultOptions());
 		} catch (\GuzzleHttp\Exception\TransferException $e) {
 			if ($this->isTimeoutException($e)) {
 				throw new TimeLimitExceededException('Time limit for HTTP request exceeded.', $e->getCode(), $e);
@@ -47,7 +41,7 @@ class GuzzleHttpClient implements IHttpClient
 			throw new HttpClientException('Failed to make an HTTP request.', $e->getCode(), $e);
 		}
 
-		return $httpResponse;
+		return $response;
 	}
 
 	/**
@@ -64,7 +58,7 @@ class GuzzleHttpClient implements IHttpClient
 
 	private function isTimeoutException(\Throwable $e): bool
 	{
-		if (!$e instanceof \GuzzleHttp\Exception\ConnectException) {
+		if (!$e instanceof ConnectException) {
 			return false;
 		}
 
@@ -75,6 +69,24 @@ class GuzzleHttpClient implements IHttpClient
 		$messagePrefix = 'cURL error ' . \CURLE_OPERATION_TIMEOUTED . ':';
 
 		return \strncmp($e->getMessage(), $messagePrefix, \strlen($messagePrefix)) === 0;
+	}
+
+	/**
+	 * @return mixed[]
+	 */
+	private function processOptions(RequestInterface $request): array
+	{
+		$options = [];
+
+		if ($request->hasHeader('timeout')) {
+			$options['timeout'] = (int) ($request->getHeader('timeout')[0] ?? 5);
+		}
+
+		if ($request->hasHeader('connect_timeout')) {
+			$options['connect_timeout'] = (int) ($request->getHeader('connect_timeout')[0] ?? 5);
+		}
+
+		return $options;
 	}
 
 }

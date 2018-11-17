@@ -3,34 +3,21 @@ declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
-class HttpResponse
+class HttpResponse extends \GuzzleHttp\Psr7\Response
 {
 
-	/** @var int */
-	private $statusCode;
-
-	/** @var string[][] */
-	private $headers;
-
-	/** @var string */
-	private $body;
-
 	/**
-	 * @param int $statusCode
-	 * @param string[][] $headers
-	 * @param string $body
+	 * @inheritdoc
 	 */
-	public function __construct(int $statusCode, array $headers, string $body)
+	public function __construct(int $status = 200, array $headers = [], $body = null, string $version = '1.1', string $reason = null)
 	{
-		if (!HttpStatusCode::isValid($statusCode)) {
+		if (!HttpStatusCode::isValid($status)) {
 			throw new InvalidArgumentException('Parameter statusCode must be an HTTP status code.');
 		}
 
 		static::validateHeaders($headers);
 
-		$this->statusCode = $statusCode;
-		$this->headers = $headers;
-		$this->body = $body;
+		parent::__construct($status, $headers, $body, $version, $reason);
 	}
 
 	/**
@@ -50,24 +37,6 @@ class HttpResponse
 				}
 			}
 		}
-	}
-
-	public function getStatusCode(): int
-	{
-		return $this->statusCode;
-	}
-
-	/**
-	 * @return string[][]
-	 */
-	public function getHeaders(): array
-	{
-		return $this->headers;
-	}
-
-	public function getBody(): string
-	{
-		return $this->body;
 	}
 
 }

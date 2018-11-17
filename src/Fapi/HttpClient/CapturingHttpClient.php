@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Tester\Dumper;
 
 class CapturingHttpClient implements IHttpClient
@@ -11,10 +13,10 @@ class CapturingHttpClient implements IHttpClient
 	/** @var IHttpClient */
 	private $httpClient;
 
-	/** @var HttpRequest[] */
+	/** @var RequestInterface[] */
 	private $httpRequests = [];
 
-	/** @var HttpResponse[] */
+	/** @var ResponseInterface[] */
 	private $httpResponses = [];
 
 	/** @var string */
@@ -44,15 +46,15 @@ class CapturingHttpClient implements IHttpClient
 		$this->className = $className;
 	}
 
-	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
+	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
-		$httpResponse = $this->httpClient->sendHttpRequest($httpRequest);
-		$this->capture($httpRequest, $httpResponse);
+		$response = $this->httpClient->sendRequest($request);
+		$this->capture($request, $response);
 
-		return $httpResponse;
+		return $response;
 	}
 
-	private function capture(HttpRequest $httpRequest, HttpResponse $httpResponse)
+	private function capture(RequestInterface $httpRequest, ResponseInterface $httpResponse)
 	{
 		$this->httpRequests[] = $httpRequest;
 		$this->httpResponses[] = $httpResponse;
@@ -96,14 +98,14 @@ class CapturingHttpClient implements IHttpClient
 
 			$code .= "\t\t" . '$this->add(' . "\n";
 			$code .= "\t\t\t" . 'new HttpRequest(' . "\n";
-			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getUrl(), "\t\t\t\t") . ",\n";
 			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getMethod(), "\t\t\t\t") . ",\n";
-			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getOptions(), "\t\t\t\t") . "\n";
+			$code .= "\t\t\t\t" . $this->exportValue((string) $httpRequest->getUri(), "\t\t\t\t") . ",\n";
+			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getHeaders(), "\t\t\t\t") . "\n";
 			$code .= "\t\t\t" . '),' . "\n";
 			$code .= "\t\t\t" . 'new HttpResponse(' . "\n";
 			$code .= "\t\t\t\t" . $this->exportValue($httpResponse->getStatusCode(), "\t\t\t\t") . ",\n";
 			$code .= "\t\t\t\t" . $this->exportValue($httpResponse->getHeaders(), "\t\t\t\t") . ",\n";
-			$code .= "\t\t\t\t" . $this->exportValue($httpResponse->getBody(), "\t\t\t\t") . "\n";
+			$code .= "\t\t\t\t" . $this->exportValue((string) $httpResponse->getBody(), "\t\t\t\t") . "\n";
 			$code .= "\t\t\t" . ')' . "\n";
 			$code .= "\t\t" . ');' . "\n";
 		}

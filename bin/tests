@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types = 1);
+
+\passthru(
+	\escapeshellarg(
+		__DIR__ . '/../vendor/bin/tester'
+	)
+	. ' -c ' . \escapeshellarg(
+		'../tests/php.ini'
+	)
+	. ' '
+	. '../tests',
+	$return
+);
+
+exit($return);

@@ -19,7 +19,7 @@ httpClient:
 
 Option `type` specifies the type of HTTP client to be used. Supported types are `guzzle` and `curl`.
 
-Option `logging` enables logging of all HTTP requests, HTTP responses and HTTP client errors. LoggingHttpClient supports Psr-3 `Psr\Log\LoggerInterface`. If you are using `Tracy\ILogger` you can use bridge `Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger` to convert tracy to psr logger.
+Option `logging` enables logging of all HTTP requests, HTTP responses and HTTP client errors. Logging supports Psr-3 `Psr\Log\LoggerInterface`. If you are using `Tracy\ILogger` you can use bridge `Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger` to convert tracy to psr logger.
 
 Option `bar` enables Tracy bar of all HTTP requests, HTTP responses and HTTP client errors.
 
@@ -31,8 +31,8 @@ Making HTTP requests
 Downloading Google homepage is as easy as
 
 ```php
-$httpRequest = new HttpRequest('https://www.google.com/');
-$httpResponse = $httpClient->sendHttpRequest($httpRequest);
+$httpRequest = HttpRequest::from('https://www.google.com/');
+$httpResponse = $httpClient->sendRequest($httpRequest);
 ```
 
 The HTTP response object has methods for retrieving status code, response headers and response body.
@@ -43,7 +43,7 @@ HTTP request options
 Option `form_params` can be used for making POST request with `Content-Type: application/x-www-form-urlencoded`.
 
 ```php
-$httpRequest = new HttpRequest('https://www.example.com/login', HttpMethod::POST, [
+$httpRequest = HttpRequest::from('https://www.example.com/login', HttpMethod::POST, [
 	'form_params' => [
 		'username' => 'admin',
 		'password' => 'xxx',
@@ -54,7 +54,7 @@ $httpRequest = new HttpRequest('https://www.example.com/login', HttpMethod::POST
 Option `headers` can be used for specifying HTTP request headers.
 
 ```php
-$httpRequest = new HttpRequest('https://www.google.com/', HttpMethod::GET, [
+$httpRequest = HttpRequest::from('https://www.google.com/', HttpMethod::GET, [
 	'headers' => [
 		'User-Agent' => 'Bot/1.0',
 	],
@@ -64,7 +64,7 @@ $httpRequest = new HttpRequest('https://www.google.com/', HttpMethod::GET, [
 Option `auth` can be used for specifying credentials for HTTP basic authentication.
 
 ```php
-$httpRequest = new HttpRequest('https://www.example.com/private', HttpMethod::GET, [
+$httpRequest = HttpRequest::from('https://www.example.com/private', HttpMethod::GET, [
 	'auth' => ['admin', 'xxx'],
 ]);
 ```
@@ -72,7 +72,7 @@ $httpRequest = new HttpRequest('https://www.example.com/private', HttpMethod::GE
 Option `body` can be used for specifying request body.
 
 ```php
-$httpRequest = new HttpRequest('https://www.example.com/api', HttpMethod::POST, [
+$httpRequest = HttpRequest::from('https://www.example.com/api', HttpMethod::POST, [
 	'body' => 'Request body',
 ]);
 ```
@@ -80,26 +80,22 @@ $httpRequest = new HttpRequest('https://www.example.com/api', HttpMethod::POST, 
 Option `json` can be used for specifying request body data, which should be serialized to JSON before sending.
 
 ```php
-$httpRequest = new HttpRequest('https://www.example.com/api', HttpMethod::POST, [
+$httpRequest = HttpRequest::from('https://www.example.com/api', HttpMethod::POST, [
 	'json' => [
 		'foo' => 'bar',
 	],
 ]);
 ```
 
-Option `cookies` can be used for specifying a cookie jar. This option is only supported by the Guzzle HTTP client.
+~~Option `cookies` can be used for specifying a cookie jar. This option is only supported by the Guzzle HTTP client.~~
 
-```php
-$cookieJar = new GuzzleHttp\Cookie\CookieJar();
-$httpRequest = new HttpRequest('https://www.example.com/', HttpMethod::GET, [
-	'cookies' => $cookieJar,
-]);
-```
+Option `cookies` is no more supported.
+
 
 Option `connect_timeout` can be used for specifing connection time limit.
 
 ```php
-$httpRequest = new HttpRequest('https://www.example.com/', HttpMethod::GET, [
+$httpRequest = HttpRequest::from('https://www.example.com/', HttpMethod::GET, [
 	'connect_timeout' => 3,
 ]);
 ```
@@ -107,7 +103,7 @@ $httpRequest = new HttpRequest('https://www.example.com/', HttpMethod::GET, [
 Option `timeout` can be used for specifing response time limit.
 
 ```php
-$httpRequest = new HttpRequest('https://www.example.com/', HttpMethod::GET, [
+$httpRequest = HttpRequest::from('https://www.example.com/', HttpMethod::GET, [
 	'timeout' => 3,
 ]);
 ```
@@ -119,7 +115,7 @@ If you want to follow redirects, use RedirectHelper after sending HTTP request.
 
 ```php
 $httpResponse = $httpClient->sendHttpRequest($httpRequest);
-$httpResponse = RedirectHelper::followRedirects($httpClient, $httpResponse);
+$httpResponse = RedirectHelper::followRedirects($httpClient, $httpResponse, $originHttpRequest);
 ```
 
 Mocking HTTP clients
@@ -171,7 +167,7 @@ class FooTest extends TestCase
 }
 ```
 
-After the test succeeds, stored requests and responses are written to mock file. Next time you run tests MockHttpClient is used . 
+After the test succeeds, stored requests and responses are written to mock file. Next time you run tests MockHttpClient is used. 
 
 You can always update the mock client by deleting generated file.
 

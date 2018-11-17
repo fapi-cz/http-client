@@ -183,7 +183,7 @@ class RestClientTest extends TestCase
 			],
 		];
 
-		$httpRequest = new HttpRequest($url, $method, $commonOptions + $options);
+		$httpRequest = HttpRequest::from($url, $method, $commonOptions + $options);
 
 		$httpResponse = new HttpResponse(
 			$statusCode,

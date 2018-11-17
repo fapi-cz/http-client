@@ -6,11 +6,11 @@ namespace Fapi\HttpClient\Rest;
 use Fapi\HttpClient\HttpClientException;
 use Fapi\HttpClient\HttpMethod;
 use Fapi\HttpClient\HttpRequest;
-use Fapi\HttpClient\HttpResponse;
 use Fapi\HttpClient\HttpStatusCode;
 use Fapi\HttpClient\IHttpClient;
 use Fapi\HttpClient\InvalidArgumentException;
 use Fapi\HttpClient\Utils\Json;
+use Psr\Http\Message\ResponseInterface;
 
 class RestClient
 {
@@ -160,9 +160,9 @@ class RestClient
 	 * @param string $method
 	 * @param string $path
 	 * @param mixed[]|null $data
-	 * @return HttpResponse
+	 * @return ResponseInterface
 	 */
-	private function sendHttpRequest(string $method, string $path, array $data = null): HttpResponse
+	private function sendHttpRequest(string $method, string $path, array $data = null): ResponseInterface
 	{
 		$url = $this->apiUrl . $path;
 
@@ -179,9 +179,9 @@ class RestClient
 		}
 
 		try {
-			$httpRequest = new HttpRequest($url, $method, $options);
+			$httpRequest = HttpRequest::from($url, $method, $options);
 
-			return $this->httpClient->sendHttpRequest($httpRequest);
+			return $this->httpClient->sendRequest($httpRequest);
 		} catch (HttpClientException $e) {
 			throw new RestClientException('Failed to send an HTTP request.', 0, $e);
 		}
@@ -197,10 +197,10 @@ class RestClient
 	}
 
 	/**
-	 * @param HttpResponse $httpResponse
+	 * @param ResponseInterface $httpResponse
 	 * @return mixed[]
 	 */
-	private function getArrayOfArrayResponseData(HttpResponse $httpResponse): array
+	private function getArrayOfArrayResponseData(ResponseInterface $httpResponse): array
 	{
 		$responseData = $this->getArrayResponseData($httpResponse);
 
@@ -214,10 +214,10 @@ class RestClient
 	}
 
 	/**
-	 * @param HttpResponse $httpResponse
+	 * @param ResponseInterface $httpResponse
 	 * @return mixed[]
 	 */
-	private function getArrayResponseData(HttpResponse $httpResponse): array
+	private function getArrayResponseData(ResponseInterface $httpResponse): array
 	{
 		$responseData = $this->getResponseData($httpResponse);
 
@@ -229,13 +229,13 @@ class RestClient
 	}
 
 	/**
-	 * @param HttpResponse $httpResponse
+	 * @param ResponseInterface $httpResponse
 	 * @return mixed
 	 */
-	private function getResponseData(HttpResponse $httpResponse)
+	private function getResponseData(ResponseInterface $httpResponse)
 	{
 		try {
-			return Json::decode($httpResponse->getBody(), Json::FORCE_ARRAY);
+			return Json::decode((string) $httpResponse->getBody(), Json::FORCE_ARRAY);
 		} catch (\Throwable $e) {
 			throw new InvalidResponseBodyException('Response body is not a valid JSON.', 0, $e);
 		}

@@ -4,12 +4,13 @@ declare(strict_types = 1);
 namespace Fapi\HttpClient\Bridges\Tracy;
 
 use Fapi\HttpClient\HttpClientException;
-use Fapi\HttpClient\HttpRequest;
-use Fapi\HttpClient\HttpResponse;
 use Fapi\HttpClient\IHttpClient;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Tracy\Debugger;
+use Tracy\IBarPanel;
 
-final class BarHttpClient implements IHttpClient, \Tracy\IBarPanel
+final class BarHttpClient implements IHttpClient, IBarPanel
 {
 
 	/** @var int */
@@ -33,25 +34,25 @@ final class BarHttpClient implements IHttpClient, \Tracy\IBarPanel
 		Debugger::getBar()->addPanel($this);
 	}
 
-	public function sendHttpRequest(HttpRequest $httpRequest): HttpResponse
+	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
 		$this->count++;
 		$startedAt = \microtime(true);
 
 		try {
-			$httpResponse = $this->httpClient->sendHttpRequest($httpRequest);
+			$response = $this->httpClient->sendRequest($request);
 		} catch (HttpClientException $e) {
-			$this->captureFailed($httpRequest, $e, \microtime(true) - $startedAt);
+			$this->captureFailed($request, $e, \microtime(true) - $startedAt);
 
 			throw $e;
 		}
 
-		$this->captureSuccess($httpRequest, $httpResponse, \microtime(true) - $startedAt);
+		$this->captureSuccess($request, $response, \microtime(true) - $startedAt);
 
-		return $httpResponse;
+		return $response;
 	}
 
-	private function captureFailed(HttpRequest $httpRequest, \Throwable $exception, float $time)
+	private function captureFailed(RequestInterface $httpRequest, \Throwable $exception, float $time)
 	{
 		if ($this->count >= $this->maxRequests) {
 			return;
@@ -59,13 +60,13 @@ final class BarHttpClient implements IHttpClient, \Tracy\IBarPanel
 
 		$this->totalTime += $time;
 
-		$options = $httpRequest->getOptions();
+		$options = $httpRequest->getHeaders();
 		unset($options['auth']);
 
 		$this->requests[] = [
 			'status' => 'failed',
 			'request' => [
-				'url' => $httpRequest->getUrl(),
+				'url' => (string) $httpRequest->getUri(),
 				'method' => $httpRequest->getMethod(),
 				'options' => $options,
 			],
@@ -74,27 +75,27 @@ final class BarHttpClient implements IHttpClient, \Tracy\IBarPanel
 		];
 	}
 
-	private function captureSuccess(HttpRequest $httpRequest, HttpResponse $httpResponse, float $time)
+	private function captureSuccess(RequestInterface $httpRequest, ResponseInterface $httpResponse, float $time)
 	{
 		if ($this->count >= $this->maxRequests) {
 			return;
 		}
 
 		$this->totalTime += $time;
-		$options = $httpRequest->getOptions();
+		$options = $httpRequest->getHeaders();
 		unset($options['auth']);
 
 		$this->requests[] = [
 			'status' => 'success',
 			'request' => [
-				'url' => $httpRequest->getUrl(),
+				'url' => (string) $httpRequest->getUri(),
 				'method' => $httpRequest->getMethod(),
 				'options' => $options,
 			],
 			'response' => [
 				'status_code' => $httpResponse->getStatusCode(),
 				'headers' => $httpResponse->getHeaders(),
-				'body' => $httpResponse->getBody(),
+				'body' => (string) $httpResponse->getBody(),
 			],
 			'time' => $time,
 		];

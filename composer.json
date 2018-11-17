@@ -15,8 +15,11 @@
   ],
   "require": {
 	"php": "^7.0",
-    "composer/ca-bundle": "^1.1",
-    "psr/log": "^1.0"
+	"composer/ca-bundle": "^1.1",
+	"psr/log": "^1.0",
+	"psr/http-message": "^1.0",
+	"psr/http-client": "^1.0",
+	"guzzlehttp/psr7": "^1.4"
   },
   "require-dev": {
 	"ext-curl": "*",

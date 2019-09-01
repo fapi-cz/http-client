@@ -69,6 +69,7 @@ final class BarHttpClient implements IHttpClient, IBarPanel
 				'url' => (string) $httpRequest->getUri(),
 				'method' => $httpRequest->getMethod(),
 				'options' => $options,
+				'body' => (string) $httpRequest->getBody(),
 			],
 			'exception' => $exception->getMessage(),
 			'time' => $time,
@@ -91,6 +92,7 @@ final class BarHttpClient implements IHttpClient, IBarPanel
 				'url' => (string) $httpRequest->getUri(),
 				'method' => $httpRequest->getMethod(),
 				'options' => $options,
+				'body' => (string) $httpRequest->getBody(),
 			],
 			'response' => [
 				'status_code' => $httpResponse->getStatusCode(),

@@ -100,7 +100,9 @@ class CapturingHttpClient implements IHttpClient
 			$code .= "\t\t\t" . 'new HttpRequest(' . "\n";
 			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getMethod(), "\t\t\t\t") . ",\n";
 			$code .= "\t\t\t\t" . $this->exportValue((string) $httpRequest->getUri(), "\t\t\t\t") . ",\n";
-			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getHeaders(), "\t\t\t\t") . "\n";
+			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getHeaders(), "\t\t\t\t") . ",\n";
+			$code .= "\t\t\t\t" . $this->exportValue((string) $httpRequest->getBody(), "\t\t\t\t") . ",\n";
+			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getProtocolVersion(), "\t\t\t\t") . "\n";
 			$code .= "\t\t\t" . '),' . "\n";
 			$code .= "\t\t\t" . 'new HttpResponse(' . "\n";
 			$code .= "\t\t\t\t" . $this->exportValue($httpResponse->getStatusCode(), "\t\t\t\t") . ",\n";

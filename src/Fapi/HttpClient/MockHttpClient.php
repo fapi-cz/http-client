@@ -31,6 +31,7 @@ class MockHttpClient implements IHttpClient
 		$this->assertHttpRequestUrl($expectedRequest, $request);
 		$this->assertHttpRequestMethod($expectedRequest, $request);
 		$this->assertHttpRequestOptions($expectedRequest, $request);
+		$this->assertHttpRequestBody($expectedRequest, $request);
 
 		\array_shift($this->requests);
 		/** @var HttpResponse $response */
@@ -79,6 +80,17 @@ class MockHttpClient implements IHttpClient
 
 		throw new InvalidArgumentException(
 			'Invalid HTTP request. Options not matched.'
+		);
+	}
+
+	private function assertHttpRequestBody(RequestInterface $expected, RequestInterface $actual)
+	{
+		if ((string) $expected->getBody() === (string) $actual->getBody()) {
+			return;
+		}
+
+		throw new InvalidArgumentException(
+			'Invalid HTTP request. Body not matched.'
 		);
 	}
 

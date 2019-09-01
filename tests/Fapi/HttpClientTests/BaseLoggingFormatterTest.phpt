@@ -23,7 +23,7 @@ final class BaseLoggingFormatterTest extends \Tester\TestCase
 			0.10013794898987
 		);
 
-		Assert::equal('Fapi\HttpClient: an HTTP request failed. Request URL: "test.cz" Request method: "GET" Request options: [] Exception type: "Exception" Exception message: "test" Elapsed time: 100.14 ms', $formatted);
+		Assert::equal('Fapi\HttpClient: an HTTP request failed. Request URL: "test.cz" Request method: "GET" Request headers: [] Request body: "" Exception type: "Exception" Exception message: "test" Elapsed time: 100.14 ms', $formatted);
 	}
 
 	public function testFormatSuccessful()
@@ -36,7 +36,7 @@ final class BaseLoggingFormatterTest extends \Tester\TestCase
 			0.10113794898987
 		);
 
-		Assert::equal('Fapi\HttpClient: an HTTP request has been sent. Request URL: "test.cz" Request method: "GET" Request options: [] Response status code: 200 Response headers: [] Response body: "{\"test\": \"test\"}" Elapsed time: 101.14 ms', $formatted);
+		Assert::equal('Fapi\HttpClient: an HTTP request has been sent. Request URL: "test.cz" Request method: "GET" Request headers: [] Request body: "" Response status code: 200 Response headers: [] Response body: "{\"test\": \"test\"}" Elapsed time: 101.14 ms', $formatted);
 	}
 
 }

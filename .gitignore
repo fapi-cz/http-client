@@ -3,3 +3,4 @@
 /tests/php.ini
 /vendor/*
 .idea
+/tests/**/output/

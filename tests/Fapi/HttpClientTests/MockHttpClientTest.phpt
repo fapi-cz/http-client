@@ -53,10 +53,21 @@ final class MockHttpClientTest extends \Tester\TestCase
 
 		Assert::exception(static function () use ($mockClient) {
 			$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com', [
-				'headers' => [],
+				'headers' => null,
 			]));
 		}, InvalidArgumentException::class,
 			'Invalid HTTP request. Options not matched.');
+	}
+
+	public function testBodyNotMatch()
+	{
+		$mockClient = new MockHttpClient();
+		$mockClient->add(new HttpRequest('GET', 'not.match.com', [], 'test'), new HttpResponse(200, [], ''));
+
+		Assert::exception(static function () use ($mockClient) {
+			$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com', []));
+		}, InvalidArgumentException::class,
+			'Invalid HTTP request. Body not matched.');
 	}
 
 }

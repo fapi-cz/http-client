@@ -148,6 +148,12 @@ namespace Fapi\HttpClient\Bridges\Tracy;
 							<?php endforeach ?>
 						</table>
 					<?php endif ?>
+					<?php if (!empty($request['body'])): ?>
+						<a class="tracy-toggle tracy-collapsed" data-tracy-ref="^tr .http-client-body">Body</a>
+						<table class="tracy-collapsed http-client-body">
+							<?php echo $request['body'] ?>
+						</table>
+					<?php endif ?>
 				</td>
 				<?php if ($status === 'success'): ?>
 					<td class="http-client-panel">

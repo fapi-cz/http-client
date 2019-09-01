@@ -31,7 +31,8 @@ final class BaseLoggingFormatter implements ILoggingFormatter
 	{
 		return ' Request URL: ' . $this->dumpValue((string) $request->getUri())
 			. ' Request method: ' . $this->dumpValue($request->getMethod())
-			. ' Request options: ' . $this->dumpValue($request->getHeaders());
+			. ' Request headers: ' . $this->dumpValue($request->getHeaders())
+			. ' Request body: ' . $this->dumpValue((string) $request->getBody());
 	}
 
 	private function dumpHttpResponse(ResponseInterface $response): string

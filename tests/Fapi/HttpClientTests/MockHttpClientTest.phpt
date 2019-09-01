@@ -56,7 +56,7 @@ final class MockHttpClientTest extends \Tester\TestCase
 				'headers' => null,
 			]));
 		}, InvalidArgumentException::class,
-			'Invalid HTTP request. Options not matched.');
+			'Invalid HTTP request. Options not matched. Expected: "[]", got: "{"headers":[""]}".');
 	}
 
 	public function testBodyNotMatch()
@@ -67,7 +67,7 @@ final class MockHttpClientTest extends \Tester\TestCase
 		Assert::exception(static function () use ($mockClient) {
 			$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com', []));
 		}, InvalidArgumentException::class,
-			'Invalid HTTP request. Body not matched.');
+			'Invalid HTTP request. Body not matched. Expected: "test", got: "".');
 	}
 
 }

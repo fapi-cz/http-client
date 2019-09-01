@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
+use Fapi\HttpClient\Utils\Json;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -79,7 +80,11 @@ class MockHttpClient implements IHttpClient
 		}
 
 		throw new InvalidArgumentException(
-			'Invalid HTTP request. Options not matched.'
+			'Invalid HTTP request. Options not matched. Expected: "'
+			. Json::encode($expected->getHeaders())
+			. '", got: "'
+			. Json::encode($actual->getHeaders())
+			. '".'
 		);
 	}
 
@@ -90,7 +95,11 @@ class MockHttpClient implements IHttpClient
 		}
 
 		throw new InvalidArgumentException(
-			'Invalid HTTP request. Body not matched.'
+			'Invalid HTTP request. Body not matched. Expected: "'
+			. $expected->getBody()
+			. '", got: "'
+			. $actual->getBody()
+			. '".'
 		);
 	}
 

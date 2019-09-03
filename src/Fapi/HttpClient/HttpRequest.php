@@ -9,17 +9,20 @@ use Fapi\HttpClient\Utils\JsonException;
 class HttpRequest extends \GuzzleHttp\Psr7\Request
 {
 
+	/** @var mixed[] */
+	private static $defaults = ['verify' => true];
+
 	/**
 	 * @param \Psr\Http\Message\UriInterface|string $uri
 	 * @param string $method
-	 * @param mixed[] $headers
+	 * @param mixed[] $options
 	 */
-	public static function from($uri, string $method = HttpMethod::GET, array $headers = []): HttpRequest
+	public static function from($uri, string $method = HttpMethod::GET, array $options = []): HttpRequest
 	{
 		$body = null;
-		$headers = static::preProcessHeaders($headers, $body);
+		$options = static::preProcessHeaders($options, $body);
 
-		return new self($method, $uri, $headers, $body);
+		return new self($method, $uri, $options, $body);
 	}
 
 	/**
@@ -41,7 +44,7 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 	 */
 	private static function preProcessHeaders(array $options, &$body): array
 	{
-		$data = [];
+		$data = self::$defaults;
 
 		if (isset($options['form_params'])) {
 			$value = $options['form_params'];
@@ -85,6 +88,12 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 			$value = $options['connect_timeout'];
 			static::validateConnectTimeoutOption($value);
 			$data['connect_timeout'] = $value;
+		}
+
+		if (isset($options['verify'])) {
+			$value = $options['verify'];
+			static::validateVerify($value);
+			$data['verify'] = (bool) $value;
 		}
 
 		return $data;
@@ -196,6 +205,17 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 	{
 		if ($connectTimeout !== null && !\is_int($connectTimeout)) {
 			throw new InvalidArgumentException('Option connectTimeout must be an integer or null.');
+		}
+	}
+
+	/**
+	 * @param mixed $verify
+	 * @return void
+	 */
+	private static function validateVerify($verify)
+	{
+		if (!\is_bool($verify)) {
+			throw new InvalidArgumentException('Option verify must be an bool.');
 		}
 	}
 

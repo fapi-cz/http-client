@@ -18,7 +18,7 @@ final class BaseLoggingFormatterTest extends \Tester\TestCase
 		$formatter = new BaseLoggingFormatter();
 
 		$formatted = $formatter->formatFailed(
-			HttpRequest::from('test.cz'),
+			new HttpRequest('GET', 'test.cz'),
 			new \Exception('test'),
 			0.10013794898987
 		);
@@ -31,7 +31,7 @@ final class BaseLoggingFormatterTest extends \Tester\TestCase
 		$formatter = new BaseLoggingFormatter();
 
 		$formatted = $formatter->formatSuccessful(
-			HttpRequest::from('test.cz'),
+			new HttpRequest('GET', 'test.cz'),
 			new HttpResponse(200, [], '{"test": "test"}'),
 			0.10113794898987
 		);

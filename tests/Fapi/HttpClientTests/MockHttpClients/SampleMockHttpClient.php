@@ -16,7 +16,11 @@ final class SampleMockHttpClient extends MockHttpClient
 			new HttpRequest(
 				'GET',
 				'http://localhost/1',
-				['Host' => ['localhost'], 'User-Agent' => ['Nette Tester']],
+				[
+					'Host' => ['localhost'],
+					'verify' => ['1'],
+					'User-Agent' => ['Nette Tester'],
+				],
 				'',
 				'1.1'
 			),

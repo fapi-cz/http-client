@@ -118,7 +118,6 @@ class CapturingHttpClientTest extends TestCase
 		$httpClient = $reflectionProperty->getValue($capturingHttpClient);
 
 		Assert::type('Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient2', $httpClient);
-
 	}
 
 	public function tearDown()

@@ -21,7 +21,7 @@ final class HttpRequestTest extends TestCase
 
 		Assert::equal('test.cz', (string) $request->getUri());
 		Assert::equal(HttpMethod::GET, $request->getMethod());
-		Assert::equal([], $request->getHeaders());
+		Assert::equal(['verify' => ['1']], $request->getHeaders());
 
 		Assert::exception(static function () {
 			HttpRequest::from('test.cz', 'asdf');

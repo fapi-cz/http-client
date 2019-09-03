@@ -180,6 +180,37 @@ abstract class BaseHttpClient extends TestCase
 		$runner->run();
 	}
 
+	public function testVerify()
+	{
+		$runner = new MockHttpServerRunner();
+		$httpClient = $this->httpClient;
+
+		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient) {
+			$httpRequest = HttpRequest::from('http://127.0.0.1:1337/api',
+				HttpMethod::POST,
+				[
+					'headers' => [
+						'Content-Type' => 'application/json',
+						'User-Agent' => 'ApiClient/1.0',
+					],
+					'auth' => ['admin', 'xxx'],
+					'body' => '{"foo":"bar"}',
+					'verify' => false,
+				]);
+
+			$httpResponse = $httpClient->sendRequest($httpRequest);
+			$headers = $httpResponse->getHeaders();
+
+			Assert::same("OK\n", (string) $httpResponse->getBody());
+			Assert::same(HttpStatusCode::S200_OK, $httpResponse->getStatusCode());
+			Assert::same(['text/plain'], $headers['Content-Type']);
+
+			$runner->stop();
+		};
+
+		$runner->run();
+	}
+
 //	public function testSendHttpRequestWithExceededConnectTimeout()
 //	{
 //		$httpClient = $this->httpClient;

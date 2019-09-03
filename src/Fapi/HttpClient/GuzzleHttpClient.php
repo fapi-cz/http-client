@@ -30,7 +30,8 @@ class GuzzleHttpClient implements IHttpClient
 	{
 		$options = $this->processOptions($request);
 		$request = $request->withoutHeader('timeout')
-			->withoutHeader('connect_timeout');
+			->withoutHeader('connect_timeout')
+			->withoutHeader('verify');
 
 		try {
 			$response = $this->client->send($request, $options + $this->getDefaultOptions());
@@ -87,11 +88,15 @@ class GuzzleHttpClient implements IHttpClient
 		$options = [];
 
 		if ($request->hasHeader('timeout')) {
-			$options['timeout'] = (int) ($request->getHeader('timeout')[0] ?? 5);
+			$options['timeout'] = (int) ($request->getHeaderLine('timeout') ?? 5);
 		}
 
 		if ($request->hasHeader('connect_timeout')) {
-			$options['connect_timeout'] = (int) ($request->getHeader('connect_timeout')[0] ?? 5);
+			$options['connect_timeout'] = (int) ($request->getHeaderLine('connect_timeout') ?? 5);
+		}
+
+		if ($request->hasHeader('verify') && !(bool) $request->getHeaderLine('verify')) {
+			$options['verify'] = false;
 		}
 
 		return $options;

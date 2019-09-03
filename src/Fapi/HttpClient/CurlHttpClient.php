@@ -20,7 +20,8 @@ class CurlHttpClient implements IHttpClient
 	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
 		$handle = $this->initializeCurl($request);
-		$this->processOptions($request->getHeaders(), $handle);
+		$this->processOptions($request, $handle);
+		$request = $this->processHeaders($request, $handle);
 
 		if ($request->getBody()->getSize() > 0) {
 			\curl_setopt($handle, \CURLOPT_POSTFIELDS, (string) $request->getBody());
@@ -65,38 +66,56 @@ class CurlHttpClient implements IHttpClient
 			\CURLOPT_HEADER => true,
 		]);
 
-		$caPathOrFile = CaBundle::getSystemCaRootBundlePath();
-
-		if (\is_dir($caPathOrFile) || (\is_link($caPathOrFile) && \is_dir(\readlink($caPathOrFile)))) {
-			\curl_setopt($handle, \CURLOPT_CAPATH, $caPathOrFile);
-		} else {
-			\curl_setopt($handle, \CURLOPT_CAINFO, $caPathOrFile);
-		}
-
 		return $handle;
 	}
 
 	/**
-	 * @param mixed[] $options
 	 * @param resource $handle
-	 * @return mixed[]
 	 */
-	private function processOptions(array $options, $handle): array
+	private function processOptions(RequestInterface $request, $handle)
 	{
-		foreach ($options as $key => $option) {
-			if ($key === 'timeout') {
-				\curl_setopt($handle, \CURLOPT_TIMEOUT, (int) $option[0]);
-				unset($options[$key]);
-
-			} elseif ($key === 'connect_timeout') {
-				\curl_setopt($handle, \CURLOPT_CONNECTTIMEOUT, (int) $option[0]);
-				unset($options[$key]);
-			}
+		if ($request->hasHeader('timeout')) {
+			\curl_setopt($handle, \CURLOPT_TIMEOUT, (int) $request->getHeaderLine('timeout'));
+		} elseif ($request->hasHeader('connect_timeout')) {
+			\curl_setopt($handle, \CURLOPT_CONNECTTIMEOUT, (int) $request->getHeaderLine('connect_timeout'));
 		}
 
-		\curl_setopt($handle, \CURLOPT_HTTPHEADER, $this->formatHeaders($options));
+		$this->processVerifyOption($request->getHeaderLine('verify'), $handle);
+	}
 
-		return $options;
+	/**
+	 * @param resource $handle
+	 */
+	private function processVerifyOption(string $verify, $handle)
+	{
+		if ((bool) $verify) {
+			$caPathOrFile = CaBundle::getSystemCaRootBundlePath();
+
+			if (\is_dir($caPathOrFile) || (\is_link($caPathOrFile) && \is_dir(\readlink($caPathOrFile)))) {
+				\curl_setopt($handle, \CURLOPT_CAPATH, $caPathOrFile);
+			} else {
+				\curl_setopt($handle, \CURLOPT_CAINFO, $caPathOrFile);
+			}
+
+			return;
+		}
+
+		\curl_setopt($handle, \CURLOPT_SSL_VERIFYHOST, 0);
+		\curl_setopt($handle, \CURLOPT_SSL_VERIFYPEER, false);
+	}
+
+	/**
+	 * @param resource $handle
+	 */
+	private function processHeaders(RequestInterface $request, $handle): RequestInterface
+	{
+		$request = $request->withoutHeader('timeout')
+			->withoutHeader('connect_timeout')
+			->withoutHeader('verify');
+
+		\curl_setopt($handle, \CURLOPT_HTTPHEADER, $this->formatHeaders($request->getHeaders()));
+
+		return $request;
 	}
 
 	/**

@@ -43,7 +43,7 @@ class MockHttpClient implements IHttpClient
 
 	public function wereAllHttpRequestsSent(): bool
 	{
-		return !$this->requests;
+		return \count($this->requests) === 0;
 	}
 
 	private function assertHttpRequestUrl(RequestInterface $expected, RequestInterface $actual)

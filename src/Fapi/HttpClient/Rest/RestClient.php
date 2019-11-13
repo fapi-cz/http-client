@@ -41,7 +41,7 @@ class RestClient
 	 */
 	public function getResources(string $path, array $parameters = []): array
 	{
-		if ($parameters) {
+		if ($parameters !== []) {
 			$path .= '?' . $this->formatUrlParameters($parameters);
 		}
 
@@ -51,7 +51,7 @@ class RestClient
 			return $this->getArrayOfArrayResponseData($httpResponse);
 		}
 
-		throw new InvalidStatusCodeException();
+		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.');
 	}
 
 	/**
@@ -64,7 +64,7 @@ class RestClient
 	{
 		$path .= '/' . $id;
 
-		if ($parameters) {
+		if ($parameters !== []) {
 			$path .= '?' . $this->formatUrlParameters($parameters);
 		}
 
@@ -78,7 +78,7 @@ class RestClient
 			return null;
 		}
 
-		throw new InvalidStatusCodeException();
+		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.');
 	}
 
 	/**
@@ -88,7 +88,7 @@ class RestClient
 	 */
 	public function getSingularResource(string $path, array $parameters = []): array
 	{
-		if ($parameters) {
+		if ($parameters !== []) {
 			$path .= '?' . $this->formatUrlParameters($parameters);
 		}
 
@@ -98,7 +98,7 @@ class RestClient
 			return $this->getArrayResponseData($httpResponse);
 		}
 
-		throw new InvalidStatusCodeException();
+		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.');
 	}
 
 	/**
@@ -114,7 +114,7 @@ class RestClient
 			return $this->getArrayResponseData($httpResponse);
 		}
 
-		throw new InvalidStatusCodeException();
+		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S201_CREATED . ', got ' . $httpResponse->getStatusCode() . '.');
 	}
 
 	/**
@@ -131,7 +131,7 @@ class RestClient
 			return $this->getArrayResponseData($httpResponse);
 		}
 
-		throw new InvalidStatusCodeException();
+		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.');
 	}
 
 	public function deleteResource(string $path, int $id)
@@ -139,7 +139,12 @@ class RestClient
 		$httpResponse = $this->sendHttpRequest(HttpMethod::DELETE, $path . '/' . $id);
 
 		if (!\in_array($httpResponse->getStatusCode(), [HttpStatusCode::S200_OK, HttpStatusCode::S204_NO_CONTENT], true)) {
-			throw new InvalidStatusCodeException();
+			throw new InvalidStatusCodeException(
+				'Expected return status code [' . \implode(', ', [
+					HttpStatusCode::S200_OK,
+					HttpStatusCode::S204_NO_CONTENT,
+				]) . '], got ' . $httpResponse->getStatusCode() . '.'
+			);
 		}
 	}
 

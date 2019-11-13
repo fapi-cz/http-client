@@ -74,13 +74,13 @@ class Json
 	 */
 	public static function decode(string $json, int $options = 0)
 	{
-		if (!\preg_match('##u', $json)) {
+		if (!(bool) \preg_match('##u', $json)) {
 			throw new JsonException('Invalid UTF-8 sequence', 5); // workaround for PHP < 5.3.3 & PECL JSON-C
 		}
 
 		$forceArray = (bool) ($options & self::FORCE_ARRAY);
 
-		if (!$forceArray && \preg_match('#(?<=[^\\\\]")\\\\u0000(?:[^"\\\\]|\\\\.)*+"\s*+:#', $json)) { // workaround for json_decode fatal error when object key starts with \u0000
+		if (!$forceArray && (bool) \preg_match('#(?<=[^\\\\]")\\\\u0000(?:[^"\\\\]|\\\\.)*+"\s*+:#', $json)) { // workaround for json_decode fatal error when object key starts with \u0000
 
 			throw new JsonException(static::$messages[\JSON_ERROR_CTRL_CHAR]);
 		}
@@ -93,7 +93,7 @@ class Json
 
 		$value = \json_decode(...$args);
 
-		if ($value === null && $json !== '' && \strcasecmp($json, 'null')) { // '' is not clearing json_last_error
+		if ($value === null && $json !== '' && (bool) \strcasecmp($json, 'null')) { // '' is not clearing json_last_error
 			$error = \json_last_error();
 
 			throw new JsonException(static::$messages[$error] ?? 'Unknown error', $error);
@@ -101,13 +101,5 @@ class Json
 
 		return $value;
 	}
-
-}
-
-/**
- * The exception that indicates error of JSON encoding/decoding.
- */
-class JsonException extends \Exception
-{
 
 }

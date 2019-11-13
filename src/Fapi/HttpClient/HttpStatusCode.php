@@ -51,7 +51,7 @@ class HttpStatusCode
 
 	public static function isValid(int $value): bool
 	{
-		return \is_int($value) && $value >= 100 && $value <= 599;
+		return $value >= 100 && $value <= 599;
 	}
 
 }

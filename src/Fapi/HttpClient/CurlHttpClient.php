@@ -64,6 +64,7 @@ class CurlHttpClient implements IHttpClient
 			\CURLOPT_CUSTOMREQUEST => $httpRequest->getMethod(),
 			\CURLOPT_RETURNTRANSFER => true,
 			\CURLOPT_HEADER => true,
+			\CURLOPT_ENCODING => 'gzip',
 		]);
 
 		return $handle;

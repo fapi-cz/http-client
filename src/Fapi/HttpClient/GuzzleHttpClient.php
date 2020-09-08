@@ -31,7 +31,8 @@ class GuzzleHttpClient implements IHttpClient
 		$options = $this->processOptions($request);
 		$request = $request->withoutHeader('timeout')
 			->withoutHeader('connect_timeout')
-			->withoutHeader('verify');
+			->withoutHeader('verify')
+			->withHeader('Accept-Encoding', 'gzip');
 
 		try {
 			$response = $this->client->send($request, $options + $this->getDefaultOptions());

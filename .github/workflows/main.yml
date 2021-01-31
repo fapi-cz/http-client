@@ -255,5 +255,5 @@ jobs:
 
       - uses: codecov/codecov-action@v1
         with:
-          token: c6fa9646-248f-4ebf-9cb4-8916ea75e1d2
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true

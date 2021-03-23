@@ -1,17 +1,16 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient\Bridges\Tracy;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;
+use Throwable;
 use Tracy\ILogger;
 
 final class TracyToPsrLogger extends AbstractLogger
 {
 
-	/** PSR-3 log level to Tracy logger priority mapping */
-	const PRIORITY_MAP = [
+	public const PRIORITY_MAP = [
 		LogLevel::EMERGENCY => ILogger::CRITICAL,
 		LogLevel::ALERT => ILogger::CRITICAL,
 		LogLevel::CRITICAL => ILogger::CRITICAL,
@@ -22,8 +21,7 @@ final class TracyToPsrLogger extends AbstractLogger
 		LogLevel::DEBUG => ILogger::DEBUG,
 	];
 
-	/** @var ILogger */
-	private $tracyLogger;
+	private ILogger $tracyLogger;
 
 	public function __construct(ILogger $tracyLogger)
 	{
@@ -33,16 +31,16 @@ final class TracyToPsrLogger extends AbstractLogger
 	/**
 	 * @inheritdoc
 	 */
-	public function log($level, $message, array $context = [])
+	public function log($level, $message, array $context = []): void
 	{
 		$priority = self::PRIORITY_MAP[$level] ?? ILogger::ERROR;
 
-		if (isset($context['exception']) && $context['exception'] instanceof \Throwable) {
+		if (isset($context['exception']) && $context['exception'] instanceof Throwable) {
 			$this->tracyLogger->log($context['exception'], $priority);
 			unset($context['exception']);
 		}
 
-		if ($context) {
+		if ($context !== []) {
 			$message = [
 				'message' => $message,
 				'context' => $context,

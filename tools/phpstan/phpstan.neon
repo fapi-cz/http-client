@@ -1,11 +1,10 @@
 parameters:
-	autoload_directories:
-		- %rootDir%/../../../src
-		- %rootDir%/../../../tests
 	excludes_analyse:
 	ignoreErrors:
 		- '#Constant LOCKS_DIR not found\.#'
+		- '#Used constant LOCKS_DIR not found\.#'
 
 includes:
 	- ../../vendor/phpstan/phpstan-nette/extension.neon
 	- ../../vendor/phpstan/phpstan-nette/rules.neon
+	- ../../vendor/phpstan/phpstan-strict-rules/rules.neon

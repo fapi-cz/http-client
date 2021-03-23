@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
@@ -7,6 +6,12 @@ use Fapi\HttpClient\Utils\Json;
 use Fapi\HttpClient\Utils\JsonException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
+use function base64_encode;
+use function get_class;
+use function serialize;
+use function sprintf;
+use const JSON_UNESCAPED_UNICODE;
 
 final class BaseLoggingFormatter implements ILoggingFormatter
 {
@@ -19,7 +24,7 @@ final class BaseLoggingFormatter implements ILoggingFormatter
 			. $this->dumpElapsedTime($elapsedTime);
 	}
 
-	public function formatFailed(RequestInterface $request, \Throwable $exception, float $elapsedTime): string
+	public function formatFailed(RequestInterface $request, Throwable $exception, float $elapsedTime): string
 	{
 		return 'Fapi\HttpClient: an HTTP request failed.'
 			. $this->dumpHttpRequest($request)
@@ -42,15 +47,15 @@ final class BaseLoggingFormatter implements ILoggingFormatter
 			. ' Response body: ' . $this->dumpValue((string) $response->getBody());
 	}
 
-	private function dumpException(\Throwable $exception): string
+	private function dumpException(Throwable $exception): string
 	{
-		$dump = ' Exception type: ' . $this->dumpValue(\get_class($exception))
+		$dump = ' Exception type: ' . $this->dumpValue(get_class($exception))
 			. ' Exception message: ' . $this->dumpValue($exception->getMessage());
 
 		if ($exception->getPrevious() !== null) {
 			$previousException = $exception->getPrevious();
 
-			$dump .= ' Previous exception type: ' . $this->dumpValue(\get_class($previousException))
+			$dump .= ' Previous exception type: ' . $this->dumpValue(get_class($previousException))
 				. ' Previous exception message: ' . $this->dumpValue($previousException->getMessage());
 		}
 
@@ -61,19 +66,18 @@ final class BaseLoggingFormatter implements ILoggingFormatter
 	{
 		$elapsedTime *= 1000;
 
-		return ' Elapsed time: ' . \sprintf('%0.2f', $elapsedTime) . ' ms';
+		return ' Elapsed time: ' . sprintf('%0.2f', $elapsedTime) . ' ms';
 	}
 
 	/**
 	 * @param mixed $value
-	 * @return string
 	 */
 	private function dumpValue($value): string
 	{
 		try {
-			return Json::encode($value, \JSON_UNESCAPED_UNICODE);
+			return Json::encode($value, JSON_UNESCAPED_UNICODE);
 		} catch (JsonException $e) {
-			return '(serialized) ' . \base64_encode(\serialize($value));
+			return '(serialized) ' . base64_encode(serialize($value));
 		}
 	}
 

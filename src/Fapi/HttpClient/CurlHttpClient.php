@@ -90,7 +90,7 @@ class CurlHttpClient implements IHttpClient
 	}
 
 	/**
-	 * @return resource
+	 * @return \CurlHandle|resource
 	 */
 	private function initializeCurl(RequestInterface $httpRequest)
 	{
@@ -108,7 +108,7 @@ class CurlHttpClient implements IHttpClient
 	}
 
 	/**
-	 * @param resource $handle
+	 * @param \CurlHandle|resource $handle
 	 */
 	private function processOptions(RequestInterface $request, $handle): void
 	{
@@ -122,7 +122,7 @@ class CurlHttpClient implements IHttpClient
 	}
 
 	/**
-	 * @param resource $handle
+	 * @param \CurlHandle|resource $handle
 	 */
 	private function processVerifyOption(string $verify, $handle): void
 	{
@@ -143,7 +143,7 @@ class CurlHttpClient implements IHttpClient
 	}
 
 	/**
-	 * @param resource $handle
+	 * @param \CurlHandle|resource $handle
 	 */
 	private function processHeaders(RequestInterface $request, $handle): RequestInterface
 	{

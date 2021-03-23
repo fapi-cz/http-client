@@ -51,7 +51,7 @@ final class TracyToPsrLoggerTest extends TestCase
 
 	private function cleanUp(): void
 	{
-		foreach (glob(__DIR__ . '/exception*') as $f) {
+		foreach (glob(__DIR__ . '/info*') as $f) {
 			@unlink($f);
 		}
 

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests\MockHttpServer;
 
@@ -12,7 +11,7 @@ class AssignCookieRequestHandler
 
 	public function handleRequest(ServerRequestInterface $request): ResponseInterface
 	{
-		return new React\Http\Response(200, [
+		return new React\Http\Message\Response(200, [
 			'Content-Type' => 'text/plain',
 			'Set-Cookie' => 'sample-name=sample-value; path=/',
 		], "OK\n");

@@ -1,48 +1,41 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests\MockHttpServer;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React;
-use React\Http\Response;
+use React\Http\Message\Response;
+use function fflush;
+use function fwrite;
+use const STDOUT;
 
 class MockHttpServer
 {
 
-	/** @var React\EventLoop\LoopInterface */
-	private $eventLoop;
+	private React\EventLoop\LoopInterface $eventLoop;
 
-	/** @var React\Socket\Server */
-	private $socketServer;
+	private React\Socket\Server $socketServer;
 
-	/** @var React\Http\Server */
-	private $httpServer;
+	private React\Http\Server $httpServer;
 
-	/** @var ApiRequestHandler */
-	private $apiRequestHandler;
+	private ApiRequestHandler $apiRequestHandler;
 
-	/** @var AssignCookieRequestHandler */
-	private $assignCookieRequestHandler;
+	private AssignCookieRequestHandler $assignCookieRequestHandler;
 
-	/** @var CheckCookieRequestHandler */
-	private $checkCookieRequestHandler;
+	private CheckCookieRequestHandler $checkCookieRequestHandler;
 
-	/** @var DelayedRequestHandler */
-	private $delayedRequestHandler;
+	private DelayedRequestHandler $delayedRequestHandler;
 
-	/** @var EmptyRequestHandler */
-	private $emptyRequestHandler;
+	private EmptyRequestHandler $emptyRequestHandler;
 
-	/** @var LoginRequestHandler */
-	private $loginRequestHandler;
+	private LoginRequestHandler $loginRequestHandler;
 
-	public function run()
+	public function run(): void
 	{
 		$this->eventLoop = React\EventLoop\Factory::create();
 		$this->socketServer = new React\Socket\Server('1337', $this->eventLoop);
-		$this->httpServer = new React\Http\Server([$this, 'handleRequest']);
+		$this->httpServer = new React\Http\Server($this->eventLoop, [$this, 'handleRequest']);
 
 		$this->apiRequestHandler = new ApiRequestHandler();
 		$this->assignCookieRequestHandler = new AssignCookieRequestHandler();
@@ -56,12 +49,12 @@ class MockHttpServer
 		$this->eventLoop->run();
 	}
 
-	public function startServer()
+	public function startServer(): void
 	{
 		$this->httpServer->listen($this->socketServer);
 
-		\fwrite(\STDOUT, "Server running at http://127.0.0.1:1337/\n");
-		\fflush(\STDOUT);
+		fwrite(STDOUT, "Server running at http://127.0.0.1:1337/\n");
+		fflush(STDOUT);
 	}
 
 	public function handleRequest(ServerRequestInterface $request): ResponseInterface
@@ -75,7 +68,8 @@ class MockHttpServer
 
 	private function processRequest(
 		ServerRequestInterface $request
-	): ResponseInterface {
+	): ResponseInterface
+	{
 		$path = $request->getUri()->getPath();
 
 		if ($path === '/api') {
@@ -105,13 +99,13 @@ class MockHttpServer
 		throw new InvalidHttpRequestException('Unexpected path.');
 	}
 
-	public function handleTimeout()
+	public function handleTimeout(): void
 	{
 		$this->socketServer->close();
 		$this->eventLoop->stop();
 
-		\fwrite(\STDOUT, "Time limit exceeded\n");
-		\fflush(\STDOUT);
+		fwrite(STDOUT, "Time limit exceeded\n");
+		fflush(STDOUT);
 	}
 
 }

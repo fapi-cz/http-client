@@ -1,15 +1,24 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
-class HttpResponse extends \GuzzleHttp\Psr7\Response
+use GuzzleHttp\Psr7\Response;
+use function is_array;
+use function is_string;
+
+class HttpResponse extends Response
 {
 
 	/**
 	 * @inheritdoc
 	 */
-	public function __construct(int $status = 200, array $headers = [], $body = null, string $version = '1.1', string $reason = null)
+	public function __construct(
+		int $status = 200,
+		array $headers = [],
+		$body = null,
+		string $version = '1.1',
+		?string $reason = null
+	)
 	{
 		if (!HttpStatusCode::isValid($status)) {
 			throw new InvalidArgumentException('Parameter statusCode must be an HTTP status code.');
@@ -21,18 +30,17 @@ class HttpResponse extends \GuzzleHttp\Psr7\Response
 	}
 
 	/**
-	 * @param string[][] $headers
-	 * @return void
+	 * @param array<string|array<mixed>> $headers
 	 */
-	private static function validateHeaders(array $headers)
+	private static function validateHeaders(array $headers): void
 	{
 		foreach ($headers as $values) {
-			if (!\is_array($values)) {
+			if (!is_array($values)) {
 				throw new InvalidArgumentException('Header values must be an array.');
 			}
 
 			foreach ($values as $value) {
-				if (!\is_string($value)) {
+				if (!is_string($value)) {
 					throw new InvalidArgumentException('Header value must be a string.');
 				}
 			}

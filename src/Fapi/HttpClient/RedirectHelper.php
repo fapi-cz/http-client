@@ -1,11 +1,15 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use function array_change_key_case;
+use function in_array;
+use function strlen;
+use function strncasecmp;
+use const CASE_LOWER;
 
 class RedirectHelper
 {
@@ -15,7 +19,8 @@ class RedirectHelper
 		ResponseInterface $response,
 		RequestInterface $request,
 		int $limit = 5
-	): ResponseInterface {
+	): ResponseInterface
+	{
 		for ($count = 0; $count < $limit; $count++) {
 			$redirectUrl = static::getRedirectUrl($response);
 
@@ -30,10 +35,7 @@ class RedirectHelper
 		throw new TooManyRedirectsException('Maximum number of redirections exceeded.');
 	}
 
-	/**
-	 * @return string|null
-	 */
-	private static function getRedirectUrl(ResponseInterface $httpResponse)
+	private static function getRedirectUrl(ResponseInterface $httpResponse): ?string
 	{
 		if (!static::isRedirectionStatusCode($httpResponse->getStatusCode())) {
 			return null;
@@ -54,16 +56,15 @@ class RedirectHelper
 
 	private static function isRedirectionStatusCode(int $code): bool
 	{
-		return \in_array($code, [HttpStatusCode::S301_MOVED_PERMANENTLY, HttpStatusCode::S302_FOUND], true);
+		return in_array($code, [HttpStatusCode::S301_MOVED_PERMANENTLY, HttpStatusCode::S302_FOUND], true);
 	}
 
 	/**
-	 * @param mixed[][] $headers
-	 * @return string|null
+	 * @param array<array<mixed>> $headers
 	 */
-	private static function getLocationHeader(array $headers)
+	private static function getLocationHeader(array $headers): ?string
 	{
-		$headers = \array_change_key_case($headers, \CASE_LOWER);
+		$headers = array_change_key_case($headers, CASE_LOWER);
 
 		return $headers['location'][0] ?? null;
 	}
@@ -71,7 +72,7 @@ class RedirectHelper
 	private static function isValidRedirectUrl(string $url): bool
 	{
 		foreach (['http://', 'https://'] as $prefix) {
-			if (\strncasecmp($url, $prefix, \strlen($prefix)) === 0) {
+			if (strncasecmp($url, $prefix, strlen($prefix)) === 0) {
 				return true;
 			}
 		}

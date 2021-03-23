@@ -1,58 +1,26 @@
-<?xml version="1.0"?>
-<ruleset name="fapi-cz/http-client">
-	<rule ref="../../vendor/slevomat/coding-standard/SlevomatCodingStandard/ruleset.xml">
-		<exclude name="SlevomatCodingStandard.ControlStructures.RequireYodaComparison"/>
-		<exclude name="SlevomatCodingStandard.ControlStructures.DisallowShortTernaryOperator"/>
-		<exclude name="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly.ReferenceViaFullyQualifiedNameWithoutNamespace"/>
-		<exclude name="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly.ReferenceViaFullyQualifiedName"/>
-		<exclude name="SlevomatCodingStandard.Namespaces.UseOnlyWhitelistedNamespaces.NonFullyQualified"/>
-		<exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation.NonFullyQualifiedClassName"/>
-		<exclude name="SlevomatCodingStandard.Commenting.DisallowOneLinePropertyDocComment.OneLinePropertyComment"/>
-		<exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedExceptions.NonFullyQualifiedException"/>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="./../../vendor/squizlabs/php_codesniffer/phpcs.xsd">
 
-		<exclude name="SlevomatCodingStandard.Operators.DisallowIncrementAndDecrementOperators.DisallowedPostIncrementOperator"/>
-		<exclude name="SlevomatCodingStandard.Operators.DisallowIncrementAndDecrementOperators.DisallowedPostDecrementOperator"/>
+    <!-- Show only relevant part of path -->
+    <arg name="basepath" value="./../../"/>
 
-		<exclude name="SlevomatCodingStandard.Operators.DisallowIncrementAndDecrementOperators.DisallowedPreIncrementOperator"/>
-		<exclude name="SlevomatCodingStandard.Operators.DisallowIncrementAndDecrementOperators.DisallowedPreDecrementOperator"/>
-		<exclude name="SlevomatCodingStandard.ControlStructures.NewWithoutParentheses.UselessParentheses"/>
+    <!-- Configure cache -->
+<!--    <arg name="cache" value="./var/build-tools/codesniffer.dat"/>-->
 
-		<exclude name="SlevomatCodingStandard.ControlStructures.RequireTernaryOperator.TernaryOperatorNotUsed"/>
+    <!-- Import coding-standard -->
+    <rule ref="./../../vendor/orisai/coding-standard/src/ruleset-7.4.xml">
+        <exclude name="SlevomatCodingStandard.Numbers.RequireNumericLiteralSeparator.RequiredNumericLiteralSeparator"></exclude>
+        <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
 
-		<exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming.SuperfluousSuffix"/>
+        <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming.SuperfluousSuffix"/>
+    </rule>
 
-		<!--PHP 7.1 features-->
-		<exclude name="SlevomatCodingStandard.Classes.ClassConstantVisibility.MissingConstantVisibility"/>
-		<exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint"/>
-		<exclude name="SlevomatCodingStandard.PHP.ShortList.LongListUsed"/>
-		<exclude name="SlevomatCodingStandard.TypeHints.NullableTypeForNullDefaultValue.NullabilitySymbolRequired"/>
-
-		<!--todo-->
-		<exclude name="SlevomatCodingStandard.Files.TypeNameMatchesFileName.NoMatchBetweenTypeNameAndFileName"/>
-		<exclude name="SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter"/>
-	</rule>
-
-	<rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
-		<properties>
-			<property name="newlinesCountBetweenOpenTagAndDeclare" type="int" value="1"/>
-			<property name="spacesCountAroundEqualsSign" type="int" value="1"/>
-		</properties>
-	</rule>
-	<rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration">
-		<properties>
-			<property
-					name="usefulAnnotations"
-					type="array"
-					value="
-                    @deprecated,
-                    @internal,
-                    @dataProvider,
-                    @GET,
-                    @POST,
-                    @PUT,
-                    @DELETE
-                "
-			/>
-		</properties>
-	</rule>
+    <!-- Configure PSR-4 rule -->
+<!--    <rule ref="SlevomatCodingStandard.Files.TypeNameMatchesFileName">-->
+<!--        <properties>-->
+<!--            <property name="rootNamespaces" type="array">-->
+<!--                <element key="src" value="Fapi"/>-->
+<!--                <element key="tests" value="Tests\Fapi"/>-->
+<!--            </property>-->
+<!--        </properties>-->
+<!--    </rule>-->
 </ruleset>

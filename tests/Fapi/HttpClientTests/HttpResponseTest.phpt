@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests;
 
@@ -14,7 +13,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 final class HttpResponseTest extends TestCase
 {
 
-	public function testDefault()
+	public function testDefault(): void
 	{
 		$response = new HttpResponse(HttpStatusCode::S200_OK, [], 'test');
 
@@ -22,12 +21,12 @@ final class HttpResponseTest extends TestCase
 		Assert::equal('test', (string) $response->getBody());
 		Assert::equal([], $response->getHeaders());
 
-		Assert::exception(static function () {
+		Assert::exception(static function (): void {
 			new HttpResponse(-1, [], '');
 		}, InvalidArgumentException::class);
 	}
 
-	public function testHeaders()
+	public function testHeaders(): void
 	{
 		new HttpResponse(HttpStatusCode::S200_OK, [
 			'test' => [
@@ -35,7 +34,7 @@ final class HttpResponseTest extends TestCase
 			],
 		], 'test');
 
-		Assert::exception(static function () {
+		Assert::exception(static function (): void {
 			new HttpResponse(HttpStatusCode::S200_OK, [
 				'test' => [
 					'tests' => 5,
@@ -43,7 +42,7 @@ final class HttpResponseTest extends TestCase
 			], 'test');
 		}, InvalidArgumentException::class);
 
-		Assert::exception(static function () {
+		Assert::exception(static function (): void {
 			new HttpResponse(HttpStatusCode::S200_OK, [
 				'test' => 't',
 			], 'test');

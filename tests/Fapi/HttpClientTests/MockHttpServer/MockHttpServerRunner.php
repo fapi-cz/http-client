@@ -1,60 +1,60 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests\MockHttpServer;
 
 use React;
+use React\Stream\ReadableResourceStream;
+use function assert;
+use function call_user_func;
+use function escapeshellarg;
+use function strlen;
 
 class MockHttpServerRunner
 {
 
-	/** @var callable[]  function (MockHttpServerRunner $sender); Occurs when the mock HTTP server is started */
-	public $onStarted = [];
+	/** @var array<callable> function (MockHttpServerRunner $sender); Occurs when the mock HTTP server is started */
+	public array $onStarted = [];
 
-	/** @var string */
-	private $serverRunningMessage = "Server running at http://127.0.0.1:1337/\n";
+	private string $serverRunningMessage = "Server running at http://127.0.0.1:1337/\n";
 
-	/** @var React\EventLoop\LoopInterface */
-	private $eventLoop;
+	private React\EventLoop\LoopInterface $eventLoop;
 
-	/** @var React\ChildProcess\Process */
-	private $process;
+	private React\ChildProcess\Process $process;
 
-	/** @var string */
-	private $stdoutBuffer;
+	private string $stdoutBuffer;
 
-	public function run()
+	public function run(): void
 	{
 		$this->eventLoop = React\EventLoop\Factory::create();
-		$this->process = new React\ChildProcess\Process(\escapeshellarg(__DIR__ . '/bin/run-mock-http-server'));
+		$this->process = new React\ChildProcess\Process(escapeshellarg(__DIR__ . '/bin/run-mock-http-server'));
 		$this->eventLoop->addTimer(0.0001, [$this, 'startChildProcess']);
 		$this->eventLoop->addTimer(3.0, [$this, 'handleTimeout']);
 		$this->eventLoop->run();
 	}
 
-	public function stop()
+	public function stop(): void
 	{
 		$this->process->close();
 		$this->process->terminate();
 		$this->eventLoop->stop();
 	}
 
-	public function startChildProcess()
+	public function startChildProcess(): void
 	{
 		$this->process->start($this->eventLoop);
 
 		$this->stdoutBuffer = '';
 
-		/** @var \React\Stream\ReadableResourceStream $stdoutStream */
 		$stdoutStream = $this->process->stdout;
+		assert($stdoutStream instanceof ReadableResourceStream);
 		$stdoutStream->on('data', [$this, 'handleStdoutData']);
 	}
 
-	public function handleStdoutData(string $data)
+	public function handleStdoutData(string $data): void
 	{
 		$this->stdoutBuffer .= $data;
 
-		if (\strlen($this->stdoutBuffer) < \strlen($this->serverRunningMessage)) {
+		if (strlen($this->stdoutBuffer) < strlen($this->serverRunningMessage)) {
 			return;
 		}
 
@@ -65,23 +65,18 @@ class MockHttpServerRunner
 		$this->fireStarted();
 	}
 
-	public function handleTimeout()
+	public function handleTimeout(): void
 	{
 		$this->process->close();
 
 		throw new HttpServerException('Time limit exceeded');
 	}
 
-	private function fireStarted()
+	private function fireStarted(): void
 	{
 		foreach ($this->onStarted as $callback) {
-			\call_user_func($callback, $this);
+			call_user_func($callback, $this);
 		}
 	}
-
-}
-
-class HttpServerException extends \RuntimeException
-{
 
 }

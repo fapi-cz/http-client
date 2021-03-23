@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests;
 
@@ -15,7 +14,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 final class HttpRequestTest extends TestCase
 {
 
-	public function testDefault()
+	public function testDefault(): void
 	{
 		$request = HttpRequest::from('test.cz');
 
@@ -23,16 +22,16 @@ final class HttpRequestTest extends TestCase
 		Assert::equal(HttpMethod::GET, $request->getMethod());
 		Assert::equal(['verify' => ['1']], $request->getHeaders());
 
-		Assert::exception(static function () {
+		Assert::exception(static function (): void {
 			HttpRequest::from('test.cz', 'asdf');
 		}, InvalidArgumentException::class);
 	}
 
 	/**
 	 * @dataProvider getValidHeadersData
-	 * @param mixed[] $headers
+	 * @param array<mixed> $headers
 	 */
-	public function testValidHeaders(array $headers = [])
+	public function testValidHeaders(array $headers = []): void
 	{
 		HttpRequest::from('test.cz', HttpMethod::GET, $headers);
 
@@ -41,17 +40,17 @@ final class HttpRequestTest extends TestCase
 
 	/**
 	 * @dataProvider getInvalidHeadersData
-	 * @param mixed[] $headers
+	 * @param array<mixed> $headers
 	 */
-	public function testInvalidHeaders(array $headers = [])
+	public function testInvalidHeaders(array $headers = []): void
 	{
-		Assert::exception(static function () use ($headers) {
+		Assert::exception(static function () use ($headers): void {
 			HttpRequest::from('test.cz', HttpMethod::GET, $headers);
 		}, InvalidArgumentException::class);
 	}
 
 	/**
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	public function getValidHeadersData(): array
 	{
@@ -59,7 +58,7 @@ final class HttpRequestTest extends TestCase
 			[
 				'headers' => [
 					'form_params' => [
-						'test',
+						0 => 'test',
 						'test' => 'test',
 					],
 				],
@@ -111,7 +110,7 @@ final class HttpRequestTest extends TestCase
 	}
 
 	/**
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	public function getInvalidHeadersData(): array
 	{

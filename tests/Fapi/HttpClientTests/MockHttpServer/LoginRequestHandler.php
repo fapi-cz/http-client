@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests\MockHttpServer;
 
@@ -12,7 +11,8 @@ class LoginRequestHandler
 
 	public function handleRequest(
 		ServerRequestInterface $request
-	): ResponseInterface {
+	): ResponseInterface
+	{
 		$method = $request->getMethod();
 		$headers = $request->getHeaders();
 
@@ -44,6 +44,7 @@ class LoginRequestHandler
 			throw new InvalidHttpRequestException('Header Content-Length has an unexpected value.');
 		}
 
+		/** @var array<mixed> $data */
 		$data = $request->getParsedBody();
 
 		if (!(isset($data['username'], $data['password'])
@@ -53,7 +54,7 @@ class LoginRequestHandler
 			throw new InvalidHttpRequestException('Response body is not valid.');
 		}
 
-		return new React\Http\Response(200, ['Content-Type' => 'text/plain'], "OK\n");
+		return new React\Http\Message\Response(200, ['Content-Type' => 'text/plain'], "OK\n");
 	}
 
 }

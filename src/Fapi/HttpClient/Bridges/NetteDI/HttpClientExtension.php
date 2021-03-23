@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient\Bidges\NetteDI;
 
@@ -15,20 +14,20 @@ use Nette\DI\CompilerExtension;
 class HttpClientExtension extends CompilerExtension
 {
 
-	/** @var mixed[] */
-	public $defaults = [
+	/** @var array<mixed> */
+	public array $defaults = [
 		'type' => 'guzzle',
 		'logging' => false,
 		'bar' => false,
 	];
 
-	/** @var string[] */
-	private $typeClasses = [
+	/** @var array<string> */
+	private array $typeClasses = [
 		'curl' => CurlHttpClient::class,
 		'guzzle' => GuzzleHttpClient::class,
 	];
 
-	public function loadConfiguration()
+	public function loadConfiguration(): void
 	{
 		$container = $this->getContainerBuilder();
 		$config = $this->validateConfig($this->defaults);

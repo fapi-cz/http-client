@@ -26,14 +26,14 @@
   "require-dev": {
 	"nette/tester": "^2.1",
 	"guzzlehttp/guzzle": "^6.0 | ^7.0",
-	"tracy/tracy": "^2.5",
-	"nette/di": "^2.4",
-	"slevomat/coding-standard": "^4.8",
-	"phpstan/phpstan": "^0.10.5",
-	"phpstan/phpstan-nette": "^0.10.1",
-	"react/http": "^0.8.3",
-	"react/child-process": "^0.5.2",
-    "phpstan/phpstan-strict-rules": "^0.10"
+	"tracy/tracy": "^2.8",
+	"nette/di": "^3.0",
+	"phpstan/phpstan": "^0.12",
+	"phpstan/phpstan-nette": "^0.12",
+    "phpstan/phpstan-strict-rules": "^0.12",
+    "orisai/coding-standard": "^1.1",
+    "react/http": "^1.2",
+    "react/child-process": "^0.6.2"
   },
   "suggest": {
 	"ext-curl": "to use class CurlHttpClient",

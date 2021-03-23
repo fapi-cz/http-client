@@ -1,22 +1,26 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
 use Fapi\HttpClient\Utils\Json;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use function array_shift;
+use function assert;
+use function count;
+use function strlen;
+use function substr;
 
 class MockHttpClient implements IHttpClient
 {
 
-	/** @var RequestInterface[] */
-	private $requests = [];
+	/** @var array<RequestInterface> */
+	private array $requests = [];
 
-	/** @var ResponseInterface[] */
-	private $responses = [];
+	/** @var array<ResponseInterface> */
+	private array $responses = [];
 
-	public function add(RequestInterface $request, ResponseInterface $response)
+	public function add(RequestInterface $request, ResponseInterface $response): void
 	{
 		$this->requests[] = $request;
 		$this->responses[] = $response;
@@ -34,19 +38,19 @@ class MockHttpClient implements IHttpClient
 		$this->assertHttpRequestOptions($expectedRequest, $request);
 		$this->assertHttpRequestBody($expectedRequest, $request);
 
-		\array_shift($this->requests);
-		/** @var HttpResponse $response */
-		$response = \array_shift($this->responses);
+		array_shift($this->requests);
+		$response = array_shift($this->responses);
+		assert($response instanceof HttpResponse);
 
 		return $response;
 	}
 
 	public function wereAllHttpRequestsSent(): bool
 	{
-		return \count($this->requests) === 0;
+		return count($this->requests) === 0;
 	}
 
-	private function assertHttpRequestUrl(RequestInterface $expected, RequestInterface $actual)
+	private function assertHttpRequestUrl(RequestInterface $expected, RequestInterface $actual): void
 	{
 		if ((string) $expected->getUri() === (string) $actual->getUri()) {
 			return;
@@ -57,11 +61,11 @@ class MockHttpClient implements IHttpClient
 
 		throw new InvalidArgumentException(
 			'Invalid HTTP request. Url not matched. Expected "'
-			. $expectedUrl . '" got "' . $actualUrl . '".'
+			. $expectedUrl . '" got "' . $actualUrl . '".',
 		);
 	}
 
-	private function assertHttpRequestMethod(RequestInterface $expected, RequestInterface $actual)
+	private function assertHttpRequestMethod(RequestInterface $expected, RequestInterface $actual): void
 	{
 		if ($expected->getMethod() === $actual->getMethod()) {
 			return;
@@ -69,11 +73,11 @@ class MockHttpClient implements IHttpClient
 
 		throw new InvalidArgumentException(
 			'Invalid HTTP request. Method not matched. Expected "'
-			. $expected->getMethod() . '" got "' . $actual->getMethod() . '".'
+			. $expected->getMethod() . '" got "' . $actual->getMethod() . '".',
 		);
 	}
 
-	private function assertHttpRequestOptions(RequestInterface $expected, RequestInterface $actual)
+	private function assertHttpRequestOptions(RequestInterface $expected, RequestInterface $actual): void
 	{
 		if ($expected->getHeaders() === $actual->getHeaders()) {
 			return;
@@ -84,11 +88,11 @@ class MockHttpClient implements IHttpClient
 			. Json::encode($expected->getHeaders())
 			. '", got: "'
 			. Json::encode($actual->getHeaders())
-			. '".'
+			. '".',
 		);
 	}
 
-	private function assertHttpRequestBody(RequestInterface $expected, RequestInterface $actual)
+	private function assertHttpRequestBody(RequestInterface $expected, RequestInterface $actual): void
 	{
 		if ((string) $expected->getBody() === (string) $actual->getBody()) {
 			return;
@@ -99,14 +103,14 @@ class MockHttpClient implements IHttpClient
 			. $expected->getBody()
 			. '", got: "'
 			. $actual->getBody()
-			. '".'
+			. '".',
 		);
 	}
 
 	private function formatUrl(string $url): string
 	{
-		if (\strlen($url) > 250) {
-			return \substr($url, 200) . '...';
+		if (strlen($url) > 250) {
+			return substr($url, 200) . '...';
 		}
 
 		return $url;

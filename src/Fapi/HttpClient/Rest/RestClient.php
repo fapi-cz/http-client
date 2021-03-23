@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient\Rest;
 
@@ -10,34 +9,35 @@ use Fapi\HttpClient\HttpStatusCode;
 use Fapi\HttpClient\IHttpClient;
 use Fapi\HttpClient\Utils\Json;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
+use function http_build_query;
+use function implode;
+use function in_array;
+use function is_array;
+use function rtrim;
 
 class RestClient
 {
 
-	/** @var string */
-	private $username;
+	private string $username;
 
-	/** @var string */
-	private $password;
+	private string $password;
 
-	/** @var string */
-	private $apiUrl;
+	private string $apiUrl;
 
-	/** @var IHttpClient */
-	private $httpClient;
+	private IHttpClient $httpClient;
 
 	public function __construct(string $username, string $password, string $apiUrl, IHttpClient $httpClient)
 	{
 		$this->username = $username;
 		$this->password = $password;
-		$this->apiUrl = \rtrim($apiUrl, '/');
+		$this->apiUrl = rtrim($apiUrl, '/');
 		$this->httpClient = $httpClient;
 	}
 
 	/**
-	 * @param string $path
-	 * @param mixed[] $parameters
-	 * @return mixed[]
+	 * @param array<mixed> $parameters
+	 * @return array<mixed>
 	 */
 	public function getResources(string $path, array $parameters = []): array
 	{
@@ -51,110 +51,23 @@ class RestClient
 			return $this->getArrayOfArrayResponseData($httpResponse);
 		}
 
-		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.');
+		throw new InvalidStatusCodeException(
+			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.',
+		);
 	}
 
 	/**
-	 * @param string $path
-	 * @param int $id
-	 * @param mixed[] $parameters
-	 * @return mixed[]|null
+	 * @param array<mixed> $parameters
 	 */
-	public function getResource(string $path, int $id, array $parameters = [])
+	private function formatUrlParameters(array $parameters): string
 	{
-		$path .= '/' . $id;
-
-		if ($parameters !== []) {
-			$path .= '?' . $this->formatUrlParameters($parameters);
-		}
-
-		$httpResponse = $this->sendHttpRequest(HttpMethod::GET, $path);
-
-		if ($httpResponse->getStatusCode() === HttpStatusCode::S200_OK) {
-			return $this->getArrayResponseData($httpResponse);
-		}
-
-		if ($httpResponse->getStatusCode() === HttpStatusCode::S404_NOT_FOUND) {
-			return null;
-		}
-
-		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.');
+		return http_build_query($parameters, '', '&');
 	}
 
 	/**
-	 * @param string $path
-	 * @param mixed[] $parameters
-	 * @return mixed[]
+	 * @param array<mixed>|null $data
 	 */
-	public function getSingularResource(string $path, array $parameters = []): array
-	{
-		if ($parameters !== []) {
-			$path .= '?' . $this->formatUrlParameters($parameters);
-		}
-
-		$httpResponse = $this->sendHttpRequest(HttpMethod::GET, $path);
-
-		if ($httpResponse->getStatusCode() === HttpStatusCode::S200_OK) {
-			return $this->getArrayResponseData($httpResponse);
-		}
-
-		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.');
-	}
-
-	/**
-	 * @param string $path
-	 * @param mixed[] $data
-	 * @return mixed[]
-	 */
-	public function createResource(string $path, array $data): array
-	{
-		$httpResponse = $this->sendHttpRequest(HttpMethod::POST, $path, $data);
-
-		if ($httpResponse->getStatusCode() === HttpStatusCode::S201_CREATED) {
-			return $this->getArrayResponseData($httpResponse);
-		}
-
-		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S201_CREATED . ', got ' . $httpResponse->getStatusCode() . '.');
-	}
-
-	/**
-	 * @param string $path
-	 * @param int $id
-	 * @param mixed[] $data
-	 * @return mixed[]
-	 */
-	public function updateResource(string $path, int $id, array $data): array
-	{
-		$httpResponse = $this->sendHttpRequest(HttpMethod::PUT, $path . '/' . $id, $data);
-
-		if ($httpResponse->getStatusCode() === HttpStatusCode::S200_OK) {
-			return $this->getArrayResponseData($httpResponse);
-		}
-
-		throw new InvalidStatusCodeException('Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.');
-	}
-
-	public function deleteResource(string $path, int $id)
-	{
-		$httpResponse = $this->sendHttpRequest(HttpMethod::DELETE, $path . '/' . $id);
-
-		if (!\in_array($httpResponse->getStatusCode(), [HttpStatusCode::S200_OK, HttpStatusCode::S204_NO_CONTENT], true)) {
-			throw new InvalidStatusCodeException(
-				'Expected return status code [' . \implode(', ', [
-					HttpStatusCode::S200_OK,
-					HttpStatusCode::S204_NO_CONTENT,
-				]) . '], got ' . $httpResponse->getStatusCode() . '.'
-			);
-		}
-	}
-
-	/**
-	 * @param string $method
-	 * @param string $path
-	 * @param mixed[]|null $data
-	 * @return ResponseInterface
-	 */
-	private function sendHttpRequest(string $method, string $path, array $data = null): ResponseInterface
+	private function sendHttpRequest(string $method, string $path, ?array $data = null): ResponseInterface
 	{
 		$url = $this->apiUrl . $path;
 
@@ -180,24 +93,14 @@ class RestClient
 	}
 
 	/**
-	 * @param mixed[] $parameters
-	 * @return string
-	 */
-	private function formatUrlParameters(array $parameters): string
-	{
-		return \http_build_query($parameters, '', '&');
-	}
-
-	/**
-	 * @param ResponseInterface $httpResponse
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	private function getArrayOfArrayResponseData(ResponseInterface $httpResponse): array
 	{
 		$responseData = $this->getArrayResponseData($httpResponse);
 
 		foreach ($responseData as $value) {
-			if (!\is_array($value)) {
+			if (!is_array($value)) {
 				throw new InvalidResponseBodyException('Response data is not an array of array.');
 			}
 		}
@@ -206,14 +109,13 @@ class RestClient
 	}
 
 	/**
-	 * @param ResponseInterface $httpResponse
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	private function getArrayResponseData(ResponseInterface $httpResponse): array
 	{
 		$responseData = $this->getResponseData($httpResponse);
 
-		if (!\is_array($responseData)) {
+		if (!is_array($responseData)) {
 			throw new InvalidResponseBodyException('Response data is not an array.');
 		}
 
@@ -221,15 +123,119 @@ class RestClient
 	}
 
 	/**
-	 * @param ResponseInterface $httpResponse
 	 * @return mixed
 	 */
 	private function getResponseData(ResponseInterface $httpResponse)
 	{
 		try {
 			return Json::decode((string) $httpResponse->getBody(), Json::FORCE_ARRAY);
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			throw new InvalidResponseBodyException('Response body is not a valid JSON.', 0, $e);
+		}
+	}
+
+	/**
+	 * @param array<mixed> $parameters
+	 * @return array<mixed>|null
+	 */
+	public function getResource(string $path, int $id, array $parameters = []): ?array
+	{
+		$path .= '/' . $id;
+
+		if ($parameters !== []) {
+			$path .= '?' . $this->formatUrlParameters($parameters);
+		}
+
+		$httpResponse = $this->sendHttpRequest(HttpMethod::GET, $path);
+
+		if ($httpResponse->getStatusCode() === HttpStatusCode::S200_OK) {
+			return $this->getArrayResponseData($httpResponse);
+		}
+
+		if ($httpResponse->getStatusCode() === HttpStatusCode::S404_NOT_FOUND) {
+			return null;
+		}
+
+		throw new InvalidStatusCodeException(
+			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.',
+		);
+	}
+
+	/**
+	 * @param array<mixed> $parameters
+	 * @return array<mixed>
+	 */
+	public function getSingularResource(string $path, array $parameters = []): array
+	{
+		if ($parameters !== []) {
+			$path .= '?' . $this->formatUrlParameters($parameters);
+		}
+
+		$httpResponse = $this->sendHttpRequest(HttpMethod::GET, $path);
+
+		if ($httpResponse->getStatusCode() === HttpStatusCode::S200_OK) {
+			return $this->getArrayResponseData($httpResponse);
+		}
+
+		throw new InvalidStatusCodeException(
+			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.',
+		);
+	}
+
+	/**
+	 * @param array<mixed> $data
+	 * @return array<mixed>
+	 */
+	public function createResource(string $path, array $data): array
+	{
+		$httpResponse = $this->sendHttpRequest(HttpMethod::POST, $path, $data);
+
+		if ($httpResponse->getStatusCode() === HttpStatusCode::S201_CREATED) {
+			return $this->getArrayResponseData($httpResponse);
+		}
+
+		throw new InvalidStatusCodeException(
+			'Expected return status code ' . HttpStatusCode::S201_CREATED . ', got ' . $httpResponse->getStatusCode() . '.',
+		);
+	}
+
+	/**
+	 * @param array<mixed> $data
+	 * @return array<mixed>
+	 */
+	public function updateResource(string $path, int $id, array $data): array
+	{
+		$httpResponse = $this->sendHttpRequest(HttpMethod::PUT, $path . '/' . $id, $data);
+
+		if ($httpResponse->getStatusCode() === HttpStatusCode::S200_OK) {
+			return $this->getArrayResponseData($httpResponse);
+		}
+
+		throw new InvalidStatusCodeException(
+			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.',
+		);
+	}
+
+	public function deleteResource(string $path, int $id): void
+	{
+		$httpResponse = $this->sendHttpRequest(HttpMethod::DELETE, $path . '/' . $id);
+
+		$inArray = !in_array(
+			$httpResponse->getStatusCode(),
+			[HttpStatusCode::S200_OK, HttpStatusCode::S204_NO_CONTENT],
+			true,
+		);
+
+		if ($inArray) {
+			throw new InvalidStatusCodeException(
+				'Expected return status code [' . implode(
+					', ',
+					[
+						HttpStatusCode::S200_OK,
+						HttpStatusCode::S204_NO_CONTENT,
+					],
+				) . '], got ' . $httpResponse->getStatusCode() . '.',
+			);
 		}
 	}
 

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests\MockHttpClients;
 
@@ -22,13 +21,13 @@ final class SampleMockHttpClient extends MockHttpClient
 					'User-Agent' => ['Nette Tester'],
 				],
 				'',
-				'1.1'
+				'1.1',
 			),
 			new HttpResponse(
 				200,
 				['Content-Type' => ['text/plain']],
-				"It works!\n"
-			)
+				"It works!\n",
+			),
 		);
 	}
 

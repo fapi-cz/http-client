@@ -2,7 +2,6 @@
 <?php
 
 require __DIR__ . '/../../../../../vendor/autoload.php';
-require __DIR__ . '/../exceptions.php';
 require __DIR__ . '/../ApiRequestHandler.php';
 require __DIR__ . '/../AssignCookieRequestHandler.php';
 require __DIR__ . '/../CheckCookieRequestHandler.php';

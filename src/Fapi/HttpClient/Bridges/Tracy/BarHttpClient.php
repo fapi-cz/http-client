@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient\Bridges\Tracy;
 
@@ -7,8 +6,12 @@ use Fapi\HttpClient\HttpClientException;
 use Fapi\HttpClient\IHttpClient;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 use Tracy\Debugger;
 use Tracy\IBarPanel;
+use function microtime;
+use function ob_get_clean;
+use function ob_start;
 
 final class BarHttpClient implements IHttpClient, IBarPanel
 {
@@ -19,7 +22,7 @@ final class BarHttpClient implements IHttpClient, IBarPanel
 	/** @var IHttpClient */
 	private $httpClient;
 
-	/** @var mixed[] */
+	/** @var array<mixed> */
 	private $requests = [];
 
 	/** @var int */
@@ -37,22 +40,22 @@ final class BarHttpClient implements IHttpClient, IBarPanel
 	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
 		$this->count++;
-		$startedAt = \microtime(true);
+		$startedAt = microtime(true);
 
 		try {
 			$response = $this->httpClient->sendRequest($request);
 		} catch (HttpClientException $e) {
-			$this->captureFailed($request, $e, \microtime(true) - $startedAt);
+			$this->captureFailed($request, $e, microtime(true) - $startedAt);
 
 			throw $e;
 		}
 
-		$this->captureSuccess($request, $response, \microtime(true) - $startedAt);
+		$this->captureSuccess($request, $response, microtime(true) - $startedAt);
 
 		return $response;
 	}
 
-	private function captureFailed(RequestInterface $httpRequest, \Throwable $exception, float $time)
+	private function captureFailed(RequestInterface $httpRequest, Throwable $exception, float $time): void
 	{
 		if ($this->count >= $this->maxRequests) {
 			return;
@@ -76,7 +79,7 @@ final class BarHttpClient implements IHttpClient, IBarPanel
 		];
 	}
 
-	private function captureSuccess(RequestInterface $httpRequest, ResponseInterface $httpResponse, float $time)
+	private function captureSuccess(RequestInterface $httpRequest, ResponseInterface $httpResponse, float $time): void
 	{
 		if ($this->count >= $this->maxRequests) {
 			return;
@@ -113,10 +116,10 @@ final class BarHttpClient implements IHttpClient, IBarPanel
 		$totalTime = $this->totalTime;
 		// @codingStandardsIgnoreEnd
 
-		\ob_start();
+		ob_start();
 		require __DIR__ . '/RequestPanel.tab.phtml';
 
-		return \ob_get_clean();
+		return (string) ob_get_clean();
 	}
 
 	/**
@@ -130,10 +133,10 @@ final class BarHttpClient implements IHttpClient, IBarPanel
 		$requests = $this->requests;
 		// @codingStandardsIgnoreEnd
 
-		\ob_start();
+		ob_start();
 		require __DIR__ . '/RequestPanel.panel.phtml';
 
-		return \ob_get_clean();
+		return (string) ob_get_clean();
 	}
 
 }

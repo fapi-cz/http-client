@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
@@ -10,6 +9,12 @@ use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
+use function class_exists;
+use function defined;
+use function strlen;
+use function strncmp;
+use const CURLE_OPERATION_TIMEOUTED;
 
 class GuzzleHttpClient implements IHttpClient
 {
@@ -19,7 +24,7 @@ class GuzzleHttpClient implements IHttpClient
 
 	public function __construct()
 	{
-		if (!\class_exists('GuzzleHttp\\Client')) {
+		if (!class_exists('GuzzleHttp\\Client')) {
 			throw new InvalidStateException('Guzzle HTTP client requires Guzzle library to be installed.');
 		}
 
@@ -55,7 +60,7 @@ class GuzzleHttpClient implements IHttpClient
 	}
 
 	/**
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	private function getDefaultOptions(): array
 	{
@@ -66,23 +71,23 @@ class GuzzleHttpClient implements IHttpClient
 		];
 	}
 
-	private function isTimeoutException(\Throwable $e): bool
+	private function isTimeoutException(Throwable $e): bool
 	{
 		if (!$e instanceof ConnectException) {
 			return false;
 		}
 
-		if (!\defined('CURLE_OPERATION_TIMEOUTED')) {
+		if (!defined('CURLE_OPERATION_TIMEOUTED')) {
 			return false;
 		}
 
-		$messagePrefix = 'cURL error ' . \CURLE_OPERATION_TIMEOUTED . ':';
+		$messagePrefix = 'cURL error ' . CURLE_OPERATION_TIMEOUTED . ':';
 
-		return \strncmp($e->getMessage(), $messagePrefix, \strlen($messagePrefix)) === 0;
+		return strncmp($e->getMessage(), $messagePrefix, strlen($messagePrefix)) === 0;
 	}
 
 	/**
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	private function processOptions(RequestInterface $request): array
 	{

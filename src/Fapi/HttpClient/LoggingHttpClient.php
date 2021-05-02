@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
@@ -7,6 +6,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use function microtime;
 
 class LoggingHttpClient implements IHttpClient
 {
@@ -20,7 +20,7 @@ class LoggingHttpClient implements IHttpClient
 	/** @var ILoggingFormatter */
 	private $formatter;
 
-	public function __construct(IHttpClient $httpClient, LoggerInterface $logger, ILoggingFormatter $formatter = null)
+	public function __construct(IHttpClient $httpClient, LoggerInterface $logger, ?ILoggingFormatter $formatter = null)
 	{
 		$this->httpClient = $httpClient;
 		$this->logger = $logger;
@@ -34,22 +34,26 @@ class LoggingHttpClient implements IHttpClient
 
 	public function sendRequest(RequestInterface $request): ResponseInterface
 	{
-		$startedAt = \microtime(true);
+		$startedAt = microtime(true);
 
 		try {
 			$response = $this->httpClient->sendRequest($request);
 		} catch (HttpClientException $e) {
-			$this->logFailedRequest($request, $e, \microtime(true) - $startedAt);
+			$this->logFailedRequest($request, $e, microtime(true) - $startedAt);
 
 			throw $e;
 		}
 
-		$this->logSuccessfulRequest($request, $response, \microtime(true) - $startedAt);
+		$this->logSuccessfulRequest($request, $response, microtime(true) - $startedAt);
 
 		return $response;
 	}
 
-	private function logSuccessfulRequest(RequestInterface $request, ResponseInterface $response, float $elapsedTime)
+	private function logSuccessfulRequest(
+		RequestInterface $request,
+		ResponseInterface $response,
+		float $elapsedTime
+	): void
 	{
 		$this->log(
 			$this->formatter->formatSuccessful($request, $response, $elapsedTime),
@@ -57,7 +61,11 @@ class LoggingHttpClient implements IHttpClient
 		);
 	}
 
-	private function logFailedRequest(RequestInterface $request, HttpClientException $exception, float $elapsedTime)
+	private function logFailedRequest(
+		RequestInterface $request,
+		HttpClientException $exception,
+		float $elapsedTime
+	): void
 	{
 		$this->log(
 			$this->formatter->formatFailed($request, $exception, $elapsedTime),
@@ -65,7 +73,7 @@ class LoggingHttpClient implements IHttpClient
 		);
 	}
 
-	private function log(string $message, string $priority)
+	private function log(string $message, string $priority): void
 	{
 		$this->logger->log($priority, $message);
 	}

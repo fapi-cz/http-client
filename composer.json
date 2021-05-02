@@ -14,7 +14,7 @@
 	}
   ],
   "require": {
-	"php": "^7.0",
+	"php": ">=7.1",
 	"composer/ca-bundle": "^1.1",
 	"psr/log": "^1.0",
 	"psr/http-message": "^1.0",
@@ -24,16 +24,16 @@
 	"ext-curl": "*"
   },
   "require-dev": {
-	"nette/tester": "^2.1",
+	"nette/tester": ">=2.3",
 	"guzzlehttp/guzzle": "^6.0 | ^7.0",
-	"tracy/tracy": "^2.5",
-	"nette/di": "^2.4",
-	"slevomat/coding-standard": "^4.8",
-	"phpstan/phpstan": "^0.10.5",
-	"phpstan/phpstan-nette": "^0.10.1",
+	"tracy/tracy": ">=2.7",
+	"nette/di": "^3.0",
+	"phpstan/phpstan": "^0.12.85",
+	"phpstan/phpstan-nette": "^0.12.17",
 	"react/http": "^0.8.3",
 	"react/child-process": "^0.5.2",
-    "phpstan/phpstan-strict-rules": "^0.10"
+    "phpstan/phpstan-strict-rules": "^0.12.9",
+    "orisai/coding-standard": "^1.1"
   },
   "suggest": {
 	"ext-curl": "to use class CurlHttpClient",

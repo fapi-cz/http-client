@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests;
 
@@ -12,6 +11,7 @@ use Fapi\HttpClientTests\MockHttpServer\MockHttpServerRunner;
 use Tester\Assert;
 use Tester\Environment;
 use Tester\TestCase;
+use const LOCKS_DIR;
 
 abstract class BaseHttpClient extends TestCase
 {
@@ -19,10 +19,10 @@ abstract class BaseHttpClient extends TestCase
 	/** @var IHttpClient */
 	protected $httpClient;
 
-	protected function setUp()
+	protected function setUp(): void
 	{
 		parent::setUp();
-		Environment::lock('MockHttpServer', \LOCKS_DIR);
+		Environment::lock('MockHttpServer', LOCKS_DIR);
 		$this->httpClient = $this->createHttpClient();
 	}
 
@@ -30,18 +30,15 @@ abstract class BaseHttpClient extends TestCase
 
 	/**
 	 * @dataProvider getSampleHttpRequests
-	 * @param string $url
-	 * @param string $method
-	 * @param mixed[] $options
-	 * @param string $expectedBody
+	 * @param array<mixed> $options
 	 */
-	public function testSendHttpRequest(string $url, string $method, array $options, string $expectedBody)
+	public function testSendHttpRequest(string $url, string $method, array $options, string $expectedBody): void
 	{
 		$runner = new MockHttpServerRunner();
 		$httpRequest = HttpRequest::from($url, $method, $options);
 		$httpClient = $this->httpClient;
 
-		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient, $httpRequest, $expectedBody) {
+		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient, $httpRequest, $expectedBody): void {
 			$httpResponse = $httpClient->sendRequest($httpRequest);
 			$headers = $httpResponse->getHeaders();
 
@@ -56,7 +53,7 @@ abstract class BaseHttpClient extends TestCase
 	}
 
 	/**
-	 * @return mixed[]
+	 * @return array<mixed>
 	 */
 	public function getSampleHttpRequests(): array
 	{
@@ -114,12 +111,12 @@ abstract class BaseHttpClient extends TestCase
 		];
 	}
 
-	public function testSendHttpRequestWithNotExceededTimeout()
+	public function testSendHttpRequestWithNotExceededTimeout(): void
 	{
 		$runner = new MockHttpServerRunner();
 		$httpClient = $this->httpClient;
 
-		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient) {
+		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient): void {
 			$httpRequest = HttpRequest::from('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
 				'timeout' => 3,
 			]);
@@ -137,17 +134,17 @@ abstract class BaseHttpClient extends TestCase
 		$runner->run();
 	}
 
-	public function testSendHttpRequestWithExceededTimeout()
+	public function testSendHttpRequestWithExceededTimeout(): void
 	{
 		$runner = new MockHttpServerRunner();
 		$httpClient = $this->httpClient;
 
-		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient) {
+		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient): void {
 			$httpRequest = HttpRequest::from('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
 				'timeout' => 1,
 			]);
 
-			Assert::exception(static function () use ($httpClient, $httpRequest) {
+			Assert::exception(static function () use ($httpClient, $httpRequest): void {
 				$httpClient->sendRequest($httpRequest);
 			}, TimeLimitExceededException::class);
 
@@ -157,12 +154,12 @@ abstract class BaseHttpClient extends TestCase
 		$runner->run();
 	}
 
-	public function testSendHttpRequestWithNotExceededConnectTimeout()
+	public function testSendHttpRequestWithNotExceededConnectTimeout(): void
 	{
 		$runner = new MockHttpServerRunner();
 		$httpClient = $this->httpClient;
 
-		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient) {
+		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient): void {
 			$httpRequest = HttpRequest::from('http://127.0.0.1:1337/delayed', HttpMethod::GET, [
 				'connect_timeout' => 1,
 			]);
@@ -180,13 +177,14 @@ abstract class BaseHttpClient extends TestCase
 		$runner->run();
 	}
 
-	public function testVerify()
+	public function testVerify(): void
 	{
 		$runner = new MockHttpServerRunner();
 		$httpClient = $this->httpClient;
 
-		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient) {
-			$httpRequest = HttpRequest::from('http://127.0.0.1:1337/api',
+		$runner->onStarted[] = static function (MockHttpServerRunner $runner) use ($httpClient): void {
+			$httpRequest = HttpRequest::from(
+				'http://127.0.0.1:1337/api',
 				HttpMethod::POST,
 				[
 					'headers' => [
@@ -196,7 +194,8 @@ abstract class BaseHttpClient extends TestCase
 					'auth' => ['admin', 'xxx'],
 					'body' => '{"foo":"bar"}',
 					'verify' => false,
-				]);
+				]
+			);
 
 			$httpResponse = $httpClient->sendRequest($httpRequest);
 			$headers = $httpResponse->getHeaders();
@@ -211,16 +210,16 @@ abstract class BaseHttpClient extends TestCase
 		$runner->run();
 	}
 
-//	public function testSendHttpRequestWithExceededConnectTimeout()
-//	{
-//		$httpClient = $this->httpClient;
-//		$httpRequest = HttpRequest::from(HttpMethod::GET, 'http://127.0.0.1:1337/delayed', [
-//			'connect_timeout' => 1,
-//		]);
-//
-//		Assert::exception(static function () use ($httpClient, $httpRequest) {
-//			$httpClient->sendRequest($httpRequest);
-//		}, TimeLimitExceededException::class);
-//	}
+	//  public function testSendHttpRequestWithExceededConnectTimeout()
+	//  {
+	//      $httpClient = $this->httpClient;
+	//      $httpRequest = HttpRequest::from(HttpMethod::GET, 'http://127.0.0.1:1337/delayed', [
+	//          'connect_timeout' => 1,
+	//      ]);
+	//
+	//      Assert::exception(static function () use ($httpClient, $httpRequest) {
+	//          $httpClient->sendRequest($httpRequest);
+	//      }, TimeLimitExceededException::class);
+	//  }
 
 }

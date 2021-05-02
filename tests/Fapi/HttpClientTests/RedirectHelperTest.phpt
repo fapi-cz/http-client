@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 /**
  * Test: Fapi\HttpClient\RedirectHelper
@@ -23,7 +22,7 @@ require __DIR__ . '/../../bootstrap.php';
 class RedirectHelperTest extends TestCase
 {
 
-	public function testFollowRedirects()
+	public function testFollowRedirects(): void
 	{
 		$client = $this->getMockHttpClient();
 
@@ -37,19 +36,19 @@ class RedirectHelperTest extends TestCase
 		Assert::same('OK', (string) $response->getBody());
 	}
 
-	public function testFollowTooManyRedirects()
+	public function testFollowTooManyRedirects(): void
 	{
 		$client = $this->getMockHttpClient();
 
 		$request = new HttpRequest('GET', 'http://example.com/a');
 		$response = $client->sendRequest($request);
 
-		Assert::exception(static function () use ($client, $response, $request) {
+		Assert::exception(static function () use ($client, $response, $request): void {
 			RedirectHelper::followRedirects($client, $response, $request, 1);
 		}, TooManyRedirectsException::class, 'Maximum number of redirections exceeded.');
 	}
 
-	public function testFollowRedirectToInvalidUrl()
+	public function testFollowRedirectToInvalidUrl(): void
 	{
 		$client = $this->getMockHttpClientWithInvalidRedirectUrl();
 
@@ -64,7 +63,7 @@ class RedirectHelperTest extends TestCase
 		Assert::same('', (string) $response->getBody());
 	}
 
-	public function testFollowRedirectToEmptyUrl()
+	public function testFollowRedirectToEmptyUrl(): void
 	{
 		$client = $this->getMockHttpClientWithEmptyInvalidRedirectUrl();
 

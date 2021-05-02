@@ -4,6 +4,7 @@ namespace Fapi\HttpClientTests\MockHttpServer;
 
 use Psr\Http\Message\ServerRequestInterface;
 use React;
+use React\Http\Message\Response;
 use function assert;
 use function base64_encode;
 use function is_array;
@@ -14,7 +15,7 @@ use function json_encode;
 class ApiRequestHandler
 {
 
-	public function handleRequest(ServerRequestInterface $request): React\Http\Response
+	public function handleRequest(ServerRequestInterface $request): React\Http\Message\Response
 	{
 		$method = $request->getMethod();
 		$headers = $request->getHeaders();
@@ -55,7 +56,7 @@ class ApiRequestHandler
 			throw new InvalidHttpRequestException('Response body is not valid. ' . json_encode($data));
 		}
 
-		return new React\Http\Response(200, ['Content-Type' => 'text/plain'], "OK\n");
+		return new Response(200, ['Content-Type' => 'text/plain'], "OK\n");
 	}
 
 }

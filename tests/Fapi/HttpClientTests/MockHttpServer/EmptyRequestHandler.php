@@ -11,7 +11,7 @@ class EmptyRequestHandler
 
 	public function handleRequest(ServerRequestInterface $request): ResponseInterface
 	{
-		return new React\Http\Response(200, ['Content-Type' => 'text/plain'], '');
+		return new React\Http\Message\Response(200, ['Content-Type' => 'text/plain'], '');
 	}
 
 }

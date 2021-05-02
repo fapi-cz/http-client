@@ -24,7 +24,7 @@ class HttpRequest extends Request
 	/**
 	 * @param UriInterface|string $uri
 	 * @param array<mixed> $headers
-	 * @param \Psr\Http\Message\StreamInterface|string|null $body
+	 * @param StreamInterface|string|null $body
 	 */
 	public function __construct(string $method, $uri, array $headers = [], $body = null, string $version = '1.1')
 	{

@@ -5,7 +5,7 @@ namespace Fapi\HttpClientTests\MockHttpServer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use React;
-use React\Http\Response;
+use React\Http\Message\Response;
 use function fflush;
 use function fwrite;
 use const STDOUT;
@@ -44,7 +44,7 @@ class MockHttpServer
 	{
 		$this->eventLoop = React\EventLoop\Factory::create();
 		$this->socketServer = new React\Socket\Server('1337', $this->eventLoop);
-		$this->httpServer = new React\Http\Server([$this, 'handleRequest']);
+		$this->httpServer = new React\Http\Server($this->eventLoop, [$this, 'handleRequest']);
 
 		$this->apiRequestHandler = new ApiRequestHandler();
 		$this->assignCookieRequestHandler = new AssignCookieRequestHandler();

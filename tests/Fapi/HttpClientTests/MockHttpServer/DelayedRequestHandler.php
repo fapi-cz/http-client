@@ -14,7 +14,7 @@ class DelayedRequestHandler
 	{
 		sleep(2);
 
-		return new React\Http\Response(200, ['Content-Type' => 'text/plain'], "OK\n");
+		return new React\Http\Message\Response(200, ['Content-Type' => 'text/plain'], "OK\n");
 	}
 
 }

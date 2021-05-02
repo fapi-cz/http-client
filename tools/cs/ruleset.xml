@@ -12,6 +12,7 @@
 		<exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
 
 		<exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming.SuperfluousSuffix"/>
+		<exclude name="SlevomatCodingStandard.PHP.RequireExplicitAssertion.RequiredExplicitAssertion"/>
 	</rule>
 
 	<!-- Configure PSR-4 rule -->

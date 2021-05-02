@@ -1,9 +1,10 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient\Utils;
 
-class JsonException extends \Exception
+use Exception;
+
+class JsonException extends Exception
 {
 
 }

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests;
 
@@ -12,6 +11,7 @@ use Nette\Utils\FileSystem;
 use Tester\Assert;
 use Tester\TestCase;
 use Tracy\Debugger;
+use function is_file;
 
 require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/MockHttpClients/SampleMockHttpClient.php';
@@ -19,9 +19,8 @@ require_once __DIR__ . '/MockHttpClients/SampleMockHttpClient.php';
 final class LoggingHttpClientTest extends TestCase
 {
 
-	public function testLog()
+	public function testLog(): void
 	{
-
 		$mockClient = $this->getMockHttpClient();
 
 		Debugger::enable(false, __DIR__);
@@ -36,7 +35,7 @@ final class LoggingHttpClientTest extends TestCase
 			['Host' => ['localhost'], 'User-Agent' => ['Nette Tester']]
 		));
 
-		Assert::true(\is_file(__DIR__ . '/info.log'));
+		Assert::true(is_file(__DIR__ . '/info.log'));
 	}
 
 	private function getMockHttpClient(): MockHttpClient
@@ -58,17 +57,17 @@ final class LoggingHttpClientTest extends TestCase
 		return $mockClient;
 	}
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->cleanUp();
 	}
 
-	public function tearDown()
+	public function tearDown(): void
 	{
 		$this->cleanUp();
 	}
 
-	private function cleanUp()
+	private function cleanUp(): void
 	{
 		FileSystem::delete(__DIR__ . '/info.log');
 	}

@@ -1,10 +1,15 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClientTests\MockHttpServer;
 
 use Psr\Http\Message\ServerRequestInterface;
 use React;
+use function assert;
+use function base64_encode;
+use function is_array;
+use function is_int;
+use function json_decode;
+use function json_encode;
 
 class ApiRequestHandler
 {
@@ -38,16 +43,16 @@ class ApiRequestHandler
 			throw new InvalidHttpRequestException('Header Authorization is not present.');
 		}
 
-		if ($headers['Authorization'][0] !== 'Basic ' . \base64_encode('admin:xxx')) {
+		if ($headers['Authorization'][0] !== 'Basic ' . base64_encode('admin:xxx')) {
 			throw new InvalidHttpRequestException('Header Authorization has an unexpected value.');
 		}
 
-		/** @var int $size */
 		$size = $request->getBody()->getSize();
-		$data = \json_decode($request->getBody()->read($size), true);
+		assert(is_int($size));
+		$data = json_decode($request->getBody()->read($size), true);
 
-		if (!\is_array($data) || $data['foo'] !== 'bar') {
-			throw new InvalidHttpRequestException('Response body is not valid. ' . \json_encode($data));
+		if (!is_array($data) || $data['foo'] !== 'bar') {
+			throw new InvalidHttpRequestException('Response body is not valid. ' . json_encode($data));
 		}
 
 		return new React\Http\Response(200, ['Content-Type' => 'text/plain'], "OK\n");

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 /**
  * Test: Fapi\HttpClient\Rest\RestClient
@@ -23,7 +22,7 @@ require __DIR__ . '/../../../bootstrap.php';
 class RestClientTest extends TestCase
 {
 
-	public function testGetAllResources()
+	public function testGetAllResources(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/resources',
@@ -39,7 +38,7 @@ class RestClientTest extends TestCase
 		Assert::true($httpClient->wereAllHttpRequestsSent());
 	}
 
-	public function testGetFilteredResources()
+	public function testGetFilteredResources(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/resources?foo=bar&bar=1',
@@ -55,7 +54,7 @@ class RestClientTest extends TestCase
 		Assert::true($httpClient->wereAllHttpRequestsSent());
 	}
 
-	public function testGetResource()
+	public function testGetResource(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/resources/2?foo=bar',
@@ -71,7 +70,7 @@ class RestClientTest extends TestCase
 		Assert::true($httpClient->wereAllHttpRequestsSent());
 	}
 
-	public function testGetNonexistingResource()
+	public function testGetNonexistingResource(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/resources/3',
@@ -87,7 +86,7 @@ class RestClientTest extends TestCase
 		Assert::true($httpClient->wereAllHttpRequestsSent());
 	}
 
-	public function testGetSingularResource()
+	public function testGetSingularResource(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/singular-resource?foo=bar',
@@ -103,7 +102,7 @@ class RestClientTest extends TestCase
 		Assert::true($httpClient->wereAllHttpRequestsSent());
 	}
 
-	public function testCreateResource()
+	public function testCreateResource(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/resources',
@@ -119,7 +118,7 @@ class RestClientTest extends TestCase
 		Assert::true($httpClient->wereAllHttpRequestsSent());
 	}
 
-	public function testUpdateResource()
+	public function testUpdateResource(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/resources/7',
@@ -135,7 +134,7 @@ class RestClientTest extends TestCase
 		Assert::true($httpClient->wereAllHttpRequestsSent());
 	}
 
-	public function testDeleteResource()
+	public function testDeleteResource(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/resources/7',
@@ -150,7 +149,7 @@ class RestClientTest extends TestCase
 		Assert::true($httpClient->wereAllHttpRequestsSent());
 	}
 
-	public function testDeleteResourceWithNoContentStatusCode()
+	public function testDeleteResourceWithNoContentStatusCode(): void
 	{
 		$httpClient = $this->createMockHttpClient(
 			'https://example.com/resources/7',
@@ -166,14 +165,15 @@ class RestClientTest extends TestCase
 	}
 
 	/**
-	 * @param string $url
-	 * @param string $method
-	 * @param mixed[] $options
-	 * @param int $statusCode
-	 * @param string $responseBody
-	 * @return MockHttpClient
+	 * @param array<mixed> $options
 	 */
-	private function createMockHttpClient(string $url, string $method, array $options, int $statusCode, string $responseBody): MockHttpClient
+	private function createMockHttpClient(
+		string $url,
+		string $method,
+		array $options,
+		int $statusCode,
+		string $responseBody
+	): MockHttpClient
 	{
 		$commonOptions = [
 			'auth' => ['admin', 'xxx'],

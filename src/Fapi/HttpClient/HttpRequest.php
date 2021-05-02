@@ -1,32 +1,30 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
 use Fapi\HttpClient\Utils\Json;
 use Fapi\HttpClient\Utils\JsonException;
+use GuzzleHttp\Psr7\Request;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
+use function base64_encode;
+use function count;
+use function http_build_query;
+use function is_array;
+use function is_bool;
+use function is_int;
+use function is_string;
 
-class HttpRequest extends \GuzzleHttp\Psr7\Request
+class HttpRequest extends Request
 {
 
-	/** @var mixed[] */
+	/** @var array<mixed> */
 	private static $defaults = ['verify' => true];
 
 	/**
-	 * @param \Psr\Http\Message\UriInterface|string $uri
-	 * @param string $method
-	 * @param mixed[] $options
-	 */
-	public static function from($uri, string $method = HttpMethod::GET, array $options = []): HttpRequest
-	{
-		$body = null;
-		$options = static::preProcessHeaders($options, $body);
-
-		return new self($method, $uri, $options, $body);
-	}
-
-	/**
-	 * @inheritdoc
+	 * @param UriInterface|string $uri
+	 * @param array<mixed> $headers
+	 * @param \Psr\Http\Message\StreamInterface|string|null $body
 	 */
 	public function __construct(string $method, $uri, array $headers = [], $body = null, string $version = '1.1')
 	{
@@ -38,9 +36,21 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 	}
 
 	/**
-	 * @param mixed[] $options
-	 * @param \Psr\Http\Message\StreamInterface|string $body
-	 * @return mixed[]
+	 * @param UriInterface|string $uri
+	 * @param array<mixed> $options
+	 */
+	public static function from($uri, string $method = HttpMethod::GET, array $options = []): HttpRequest
+	{
+		$body = null;
+		$options = static::preProcessHeaders($options, $body);
+
+		return new self($method, $uri, $options, $body);
+	}
+
+	/**
+	 * @param array<mixed> $options
+	 * @param StreamInterface|string $body
+	 * @return array<mixed>
 	 */
 	private static function preProcessHeaders(array $options, &$body): array
 	{
@@ -49,7 +59,7 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 		if (isset($options['form_params'])) {
 			$value = $options['form_params'];
 			static::validateFormParamsOption($value);
-			$body = \http_build_query($value, '', '&');
+			$body = http_build_query($value, '', '&');
 			$data['Content-Type'] = 'application/x-www-form-urlencoded';
 		}
 
@@ -62,7 +72,7 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 		if (isset($options['auth'])) {
 			$value = $options['auth'];
 			static::validateAuthOption($value);
-			$data['Authorization'] = 'Basic ' . \base64_encode($value[0] . ':' . $value[1]);
+			$data['Authorization'] = 'Basic ' . base64_encode($value[0] . ':' . $value[1]);
 		}
 
 		if (isset($options['body'])) {
@@ -101,16 +111,15 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 
 	/**
 	 * @param mixed $formParams
-	 * @return void
 	 */
-	private static function validateFormParamsOption($formParams)
+	private static function validateFormParamsOption($formParams): void
 	{
-		if (!\is_array($formParams)) {
+		if (!is_array($formParams)) {
 			throw new InvalidArgumentException('Form params must be an array.');
 		}
 
 		foreach ($formParams as $value) {
-			if (!\is_string($value)) {
+			if (!is_string($value)) {
 				throw new InvalidArgumentException('Form param must be a string.');
 			}
 		}
@@ -118,22 +127,21 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 
 	/**
 	 * @param mixed $headers
-	 * @return void
 	 */
-	private static function validateHeadersOption($headers)
+	private static function validateHeadersOption($headers): void
 	{
-		if (!\is_array($headers)) {
+		if (!is_array($headers)) {
 			throw new InvalidArgumentException('Headers must be an array.');
 		}
 
 		foreach ($headers as $values) {
-			if (\is_array($values)) {
+			if (is_array($values)) {
 				foreach ($values as $value) {
-					if (!\is_string($value)) {
+					if (!is_string($value)) {
 						throw new InvalidArgumentException('Header value must be a string.');
 					}
 				}
-			} elseif (!\is_string($values)) {
+			} elseif (!is_string($values)) {
 				throw new InvalidArgumentException('Header must be an array or string.');
 			}
 		}
@@ -141,43 +149,42 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 
 	/**
 	 * @param mixed $auth
-	 * @return void
 	 */
-	private static function validateAuthOption($auth)
+	private static function validateAuthOption($auth): void
 	{
-		if (!\is_array($auth)) {
+		if (!is_array($auth)) {
 			throw new InvalidArgumentException('Parameter auth must be an array.');
 		}
 
-		if (\count($auth) !== 2 || !isset($auth[0], $auth[1])) {
-			throw new InvalidArgumentException('Parameter auth must be an array of two elements (username and password).');
+		if (count($auth) !== 2 || !isset($auth[0], $auth[1])) {
+			throw new InvalidArgumentException(
+				'Parameter auth must be an array of two elements (username and password).'
+			);
 		}
 
-		if (!\is_string($auth[0])) {
+		if (!is_string($auth[0])) {
 			throw new InvalidArgumentException('Username is not a string.');
 		}
 
-		if (!\is_string($auth[1])) {
+		if (!is_string($auth[1])) {
 			throw new InvalidArgumentException('Password is not a string.');
 		}
 	}
 
 	/**
 	 * @param mixed $body
-	 * @return void
 	 */
-	private static function validateBodyOption($body)
+	private static function validateBodyOption($body): void
 	{
-		if (!\is_string($body)) {
+		if (!is_string($body)) {
 			throw new InvalidArgumentException('Body must be a string.');
 		}
 	}
 
 	/**
 	 * @param mixed $json
-	 * @return void
 	 */
-	private static function validateJsonOption($json)
+	private static function validateJsonOption($json): void
 	{
 		try {
 			Json::encode($json);
@@ -188,33 +195,30 @@ class HttpRequest extends \GuzzleHttp\Psr7\Request
 
 	/**
 	 * @param mixed $timeout
-	 * @return void
 	 */
-	private static function validateTimeoutOption($timeout)
+	private static function validateTimeoutOption($timeout): void
 	{
-		if ($timeout !== null && !\is_int($timeout)) {
+		if ($timeout !== null && !is_int($timeout)) {
 			throw new InvalidArgumentException('Option timeout must be an integer or null.');
 		}
 	}
 
 	/**
 	 * @param mixed $connectTimeout
-	 * @return void
 	 */
-	private static function validateConnectTimeoutOption($connectTimeout)
+	private static function validateConnectTimeoutOption($connectTimeout): void
 	{
-		if ($connectTimeout !== null && !\is_int($connectTimeout)) {
+		if ($connectTimeout !== null && !is_int($connectTimeout)) {
 			throw new InvalidArgumentException('Option connectTimeout must be an integer or null.');
 		}
 	}
 
 	/**
 	 * @param mixed $verify
-	 * @return void
 	 */
-	private static function validateVerify($verify)
+	private static function validateVerify($verify): void
 	{
-		if (!\is_bool($verify)) {
+		if (!is_bool($verify)) {
 			throw new InvalidArgumentException('Option verify must be an bool.');
 		}
 	}

@@ -1,11 +1,16 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Tester\Dumper;
+use function class_exists;
+use function file_put_contents;
+use function is_file;
+use function preg_match;
+use function spl_autoload;
+use function str_replace;
 
 class CapturingHttpClient implements IHttpClient
 {
@@ -13,10 +18,10 @@ class CapturingHttpClient implements IHttpClient
 	/** @var IHttpClient */
 	private $httpClient;
 
-	/** @var RequestInterface[] */
+	/** @var array<RequestInterface> */
 	private $httpRequests = [];
 
-	/** @var ResponseInterface[] */
+	/** @var array<ResponseInterface> */
 	private $httpResponses = [];
 
 	/** @var string */
@@ -27,17 +32,17 @@ class CapturingHttpClient implements IHttpClient
 
 	public function __construct(IHttpClient $httpClient, string $file, string $className)
 	{
-		if (!\class_exists('Tester\Dumper')) {
+		if (!class_exists('Tester\Dumper')) {
 			throw new InvalidStateException('Capturing HTTP client requires Nette Tester.');
 		}
 
 		$this->httpClient = $httpClient;
 
-		if (\is_file($file)) {
+		if (is_file($file)) {
 			require_once $file;
-			\spl_autoload($className);
+			spl_autoload($className);
 
-			if (\class_exists($className)) {
+			if (class_exists($className)) {
 				$this->httpClient = new $className();
 			}
 		}
@@ -54,13 +59,13 @@ class CapturingHttpClient implements IHttpClient
 		return $response;
 	}
 
-	private function capture(RequestInterface $httpRequest, ResponseInterface $httpResponse)
+	private function capture(RequestInterface $httpRequest, ResponseInterface $httpResponse): void
 	{
 		$this->httpRequests[] = $httpRequest;
 		$this->httpResponses[] = $httpResponse;
 	}
 
-	public function close()
+	public function close(): void
 	{
 		if ($this->httpClient instanceof $this->className) {
 			return;
@@ -69,13 +74,12 @@ class CapturingHttpClient implements IHttpClient
 		$this->writeToPhpFile($this->file, $this->className);
 	}
 
-	private function writeToPhpFile(string $fileName, string $className)
+	private function writeToPhpFile(string $fileName, string $className): void
 	{
-		\preg_match('#^(?:(.*)\\\\)?([^\\\\]+)\z#', $className, $match);
-		list(, $namespace, $className) = $match;
+		preg_match('#^(?:(.*)\\\\)?([^\\\\]+)\z#', $className, $match);
+		[, $namespace, $className] = $match;
 
-		$code = '<?php' . "\n";
-		$code .= 'declare(strict_types = 1);' . "\n";
+		$code = '<?php declare(strict_types = 1);' . "\n";
 		$code .= "\n";
 
 		if ($namespace) {
@@ -116,7 +120,7 @@ class CapturingHttpClient implements IHttpClient
 		$code .= "\n";
 		$code .= '}' . "\n";
 
-		\file_put_contents($fileName, $code);
+		file_put_contents($fileName, $code);
 	}
 
 	/**
@@ -125,7 +129,7 @@ class CapturingHttpClient implements IHttpClient
 	private function exportValue($value, string $indent = ''): string
 	{
 		$s = Dumper::toPhp($value);
-		$s = \str_replace("\n", "\n" . $indent, $s);
+		$s = str_replace("\n", "\n" . $indent, $s);
 
 		return $s;
 	}

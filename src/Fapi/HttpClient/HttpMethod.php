@@ -1,19 +1,20 @@
-<?php
-declare(strict_types = 1);
+<?php declare(strict_types = 1);
 
 namespace Fapi\HttpClient;
+
+use function in_array;
 
 class HttpMethod
 {
 
-	const HEAD = 'HEAD';
-	const GET = 'GET';
-	const POST = 'POST';
-	const PUT = 'PUT';
-	const DELETE = 'DELETE';
+	public const HEAD = 'HEAD';
+	public const GET = 'GET';
+	public const POST = 'POST';
+	public const PUT = 'PUT';
+	public const DELETE = 'DELETE';
 
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	public static function getAll(): array
 	{
@@ -28,7 +29,7 @@ class HttpMethod
 
 	public static function isValid(string $value): bool
 	{
-		return \in_array($value, static::getAll(), true);
+		return in_array($value, static::getAll(), true);
 	}
 
 }

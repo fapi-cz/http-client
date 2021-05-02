@@ -3,6 +3,7 @@
 namespace Fapi\HttpClient;
 
 use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\StreamInterface;
 use function is_array;
 use function is_string;
 
@@ -11,7 +12,7 @@ class HttpResponse extends Response
 
 	/**
 	 * @param array<mixed> $headers
-	 * @param \Psr\Http\Message\StreamInterface|string|null $body
+	 * @param StreamInterface|string|null $body
 	 */
 	public function __construct(
 		int $status = 200,

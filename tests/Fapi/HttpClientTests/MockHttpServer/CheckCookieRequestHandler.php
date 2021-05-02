@@ -21,7 +21,7 @@ class CheckCookieRequestHandler
 			throw new InvalidHttpRequestException('Header Cookie has an unexpected value.');
 		}
 
-		return new React\Http\Response(200, ['Content-Type' => 'text/plain'], "OK\n");
+		return new React\Http\Message\Response(200, ['Content-Type' => 'text/plain'], "OK\n");
 	}
 
 }

@@ -40,7 +40,8 @@
 	"guzzlehttp/guzzle": "to use class GuzzleHttpClient",
 	"tracy/tracy": "to use class LoggingHttpClient",
 	"nette/tester": "to use class CapturingHttpClient",
-	"nette/di": "to use class HttpClientExtension"
+	"nette/di": "to use class HttpClientExtension",
+	"ext-iconv": "to use class BaseLoggingFormatter"
   },
   "autoload": {
 	"classmap": [

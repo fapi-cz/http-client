@@ -46,6 +46,21 @@ final class BaseLoggingFormatterTest extends TestCase
 		);
 	}
 
+
+	public function testFormatBodyToLong(): void
+	{
+		$formatter = new BaseLoggingFormatter();
+		$body = str_repeat('random text', 5000);
+
+		$formatted = $formatter->formatSuccessful(
+			new HttpRequest('GET', 'test.cz'),
+			new HttpResponse(200, [], $body),
+			0.10113794898987
+		);
+
+		Assert::same(40000, strlen($formatted));
+	}
+
 }
 
 (new BaseLoggingFormatterTest())->run();

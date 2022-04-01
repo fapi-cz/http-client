@@ -15,6 +15,8 @@ use function iconv_substr;
 use function mb_substr;
 use function serialize;
 use function sprintf;
+use function strlen;
+use function substr;
 use const JSON_UNESCAPED_UNICODE;
 
 final class BaseLoggingFormatter implements ILoggingFormatter
@@ -108,7 +110,7 @@ final class BaseLoggingFormatter implements ILoggingFormatter
 		}
 
 		if (!extension_loaded('iconv')) {
-			return iconv_substr($body, 0, $this->maxBodyLength, 'UTF-8');
+			return (string) iconv_substr($body, 0, $this->maxBodyLength, 'UTF-8');
 		}
 
 		return substr($body, 0, $this->maxBodyLength);

@@ -31,6 +31,7 @@ class Json
 {
 
 	public const FORCE_ARRAY = 1;
+
 	public const PRETTY = 2;
 
 	/** @var array<string> */

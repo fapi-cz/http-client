@@ -8,9 +8,13 @@ class HttpMethod
 {
 
 	public const HEAD = 'HEAD';
+
 	public const GET = 'GET';
+
 	public const POST = 'POST';
+
 	public const PUT = 'PUT';
+
 	public const DELETE = 'DELETE';
 
 	/**

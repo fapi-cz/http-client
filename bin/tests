@@ -8,7 +8,7 @@ declare(strict_types = 1);
 	)
 	. ' -C '
 	. ' '
-	. '../tests',
+	. __DIR__ . '/../tests',
 	$return
 );
 

@@ -8,6 +8,8 @@ use Fapi\HttpClient\HttpRequest;
 use Fapi\HttpClient\HttpResponse;
 use Tester\Assert;
 use Tester\TestCase;
+use function str_repeat;
+use function strlen;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
@@ -46,7 +48,6 @@ final class BaseLoggingFormatterTest extends TestCase
 		);
 	}
 
-
 	public function testFormatBodyToLong(): void
 	{
 		$formatter = new BaseLoggingFormatter();
@@ -58,7 +59,7 @@ final class BaseLoggingFormatterTest extends TestCase
 			0.10113794898987
 		);
 
-		Assert::same(40000, strlen($formatted));
+		Assert::same(40218, strlen($formatted));
 	}
 
 }

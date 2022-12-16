@@ -5,6 +5,7 @@ namespace Fapi\HttpClient;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use function array_change_key_case;
 use function in_array;
 use function strlen;
@@ -22,7 +23,7 @@ class RedirectHelper
 	): ResponseInterface
 	{
 		for ($count = 0; $count < $limit; $count++) {
-			$redirectUrl = static::getRedirectUrl($response);
+			$redirectUrl = static::getRedirectUrl($response, $request->getUri());
 
 			if ($redirectUrl === null) {
 				return $response;
@@ -35,7 +36,7 @@ class RedirectHelper
 		throw new TooManyRedirectsException('Maximum number of redirections exceeded.');
 	}
 
-	private static function getRedirectUrl(ResponseInterface $httpResponse): ?string
+	private static function getRedirectUrl(ResponseInterface $httpResponse, UriInterface $requestUri): ?string
 	{
 		if (!static::isRedirectionStatusCode($httpResponse->getStatusCode())) {
 			return null;
@@ -45,6 +46,10 @@ class RedirectHelper
 
 		if ($url === null) {
 			return null;
+		}
+
+		if ($url[0] === '/') {
+			$url = $requestUri->getScheme() . '://' . $requestUri->getHost() . $url;
 		}
 
 		if (!static::isValidRedirectUrl($url)) {

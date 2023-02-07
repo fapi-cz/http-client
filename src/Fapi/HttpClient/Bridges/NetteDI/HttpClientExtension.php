@@ -40,7 +40,8 @@ class HttpClientExtension extends CompilerExtension
 
 		if ($config['bar']) {
 			$container->addDefinition($this->prefix('barHttpClient'))
-				->setType($httpClientClass)
+				->setFactory($httpClientClass)
+				->setType(IHttpClient::class)
 				->setAutowired(false);
 
 			$container->addDefinition($this->prefix('httpClient'))
@@ -54,7 +55,8 @@ class HttpClientExtension extends CompilerExtension
 
 		if ($config['logging']) {
 			$container->addDefinition($this->prefix('loggingHttpClient'))
-				->setType($httpClientClass)
+				->setFactory($httpClientClass)
+				->setType(IHttpClient::class)
 				->setAutowired(false);
 
 			$container->addDefinition($this->prefix('tracyToPsrLogger'))

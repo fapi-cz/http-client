@@ -38,6 +38,10 @@ use const CURLOPT_POSTFIELDS;
 use const CURLOPT_RETURNTRANSFER;
 use const CURLOPT_SSL_VERIFYHOST;
 use const CURLOPT_SSL_VERIFYPEER;
+use const CURLOPT_SSLCERT;
+use const CURLOPT_SSLCERTPASSWD;
+use const CURLOPT_SSLKEY;
+use const CURLOPT_SSLKEYPASSWD;
 use const CURLOPT_TIMEOUT;
 use const CURLOPT_URL;
 
@@ -115,8 +119,26 @@ class CurlHttpClient implements IHttpClient
 	{
 		if ($request->hasHeader('timeout')) {
 			curl_setopt($handle, CURLOPT_TIMEOUT, (int) $request->getHeaderLine('timeout'));
-		} elseif ($request->hasHeader('connect_timeout')) {
+		}
+
+		if ($request->hasHeader('connect_timeout')) {
 			curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, (int) $request->getHeaderLine('connect_timeout'));
+		}
+
+		if ($request->hasHeader('cert')) {
+			curl_setopt($handle, CURLOPT_SSLCERT, $request->getHeader('cert')[0]);
+
+			if ($request->getHeader('cert')[1] ?? false) {
+				curl_setopt($handle, CURLOPT_SSLCERTPASSWD, $request->getHeader('cert')[1]);
+			}
+		}
+
+		if ($request->hasHeader('ssl_key')) {
+			curl_setopt($handle, CURLOPT_SSLKEY, $request->getHeader('ssl_key')[0]);
+
+			if ($request->getHeader('ssl_key')[1] ?? false) {
+				curl_setopt($handle, CURLOPT_SSLKEYPASSWD, $request->getHeader('ssl_key')[1]);
+			}
 		}
 
 		$this->processVerifyOption($request->getHeaderLine('verify'), $handle);
@@ -150,7 +172,9 @@ class CurlHttpClient implements IHttpClient
 	{
 		$request = $request->withoutHeader('timeout')
 			->withoutHeader('connect_timeout')
-			->withoutHeader('verify');
+			->withoutHeader('verify')
+			->withoutHeader('cert')
+			->withoutHeader('ssl_key');
 
 		curl_setopt($handle, CURLOPT_HTTPHEADER, $this->formatHeaders($request->getHeaders()));
 

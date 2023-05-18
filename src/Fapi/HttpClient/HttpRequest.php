@@ -9,11 +9,14 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use function base64_encode;
 use function count;
+use function file_exists;
 use function http_build_query;
 use function is_array;
 use function is_bool;
 use function is_int;
 use function is_string;
+use function json_encode;
+use function var_dump;
 
 class HttpRequest extends Request
 {
@@ -104,6 +107,18 @@ class HttpRequest extends Request
 			$value = $options['verify'];
 			static::validateVerify($value);
 			$data['verify'] = (bool) $value;
+		}
+
+		if (isset($options['cert'])) {
+			$value = $options['cert'];
+			static::validateCertOption($value);
+			$data['cert'] = $value;
+		}
+
+		if (isset($options['ssl_key'])) {
+			$value = $options['ssl_key'];
+			static::validateSslKeyOption($value);
+			$data['ssl_key'] = $value;
 		}
 
 		return $data;
@@ -220,6 +235,78 @@ class HttpRequest extends Request
 	{
 		if (!is_bool($verify)) {
 			throw new InvalidArgumentException('Option verify must be an bool.');
+		}
+	}
+
+	/**
+	 * @param mixed $value
+	 */
+	private static function validateCertOption($value): void
+	{
+		if (!is_string($value) && !is_array($value)) {
+			throw new InvalidArgumentException('Option cert must be a string.');
+		}
+
+		if (is_array($value)) {
+			if (!isset($value[0]) || !isset($value[1])) {
+				throw new InvalidArgumentException(
+					'Option cert must be an array of two elements (cert and key). Provided array: ' . json_encode(
+						$value
+					)
+				);
+			}
+
+			if (!is_string($value[0]) || !is_string($value[1])) {
+				throw new InvalidArgumentException(
+					'Option cert must be an array of two strings (cert and key). Provided array: ' . json_encode($value)
+				);
+			}
+
+			$file = $value[0];
+		} else {
+			$file = $value;
+		}
+
+		var_dump(file_exists($file));
+
+		if (!file_exists($file)) {
+			throw new InvalidArgumentException('Option cert file not found. Provided file: ' . $file);
+		}
+	}
+
+	/**
+	 * @param mixed $value
+	 */
+	private static function validateSslKeyOption($value): void
+	{
+		if (!is_string($value) && !is_array($value)) {
+			throw new InvalidArgumentException('Option ssl_key must be a string.');
+		}
+
+		if (is_array($value)) {
+			if (!isset($value[0]) || !isset($value[1])) {
+				throw new InvalidArgumentException(
+					'Option ssl_key must be an array of two elements (key and password). Provided array: ' . json_encode(
+						$value
+					) . '.'
+				);
+			}
+
+			if (!is_string($value[0]) || !is_string($value[1])) {
+				throw new InvalidArgumentException(
+					'Option ssl_key must be an array of two strings (key and password). Provided array: ' . json_encode(
+						$value
+					) . '.'
+				);
+			}
+
+			$file = $value[0];
+		} else {
+			$file = $value;
+		}
+
+		if (!file_exists($file)) {
+			throw new InvalidArgumentException('Option ssl_key file not found. Provided file: ' . $file);
 		}
 	}
 

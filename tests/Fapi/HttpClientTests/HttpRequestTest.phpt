@@ -106,6 +106,16 @@ final class HttpRequestTest extends TestCase
 					'connect_timeout' => 5,
 				],
 			],
+			[
+				'headers' => [
+					'cert' => __DIR__ . '/certs/private-key.key',
+				],
+			],
+			[
+				'headers' => [
+					'ssl_key' => __DIR__ . '/certs/public-key.pem',
+				],
+			],
 		];
 	}
 
@@ -173,6 +183,36 @@ final class HttpRequestTest extends TestCase
 			[
 				'headers' => [
 					'connect_timeout' => 5.0,
+				],
+			],
+			[
+				'headers' => [
+					'cert' => 5,
+				],
+			],
+			[
+				'headers' => [
+					'ssl_key' => 5,
+				],
+			],
+			[
+				'headers' => [
+					'cert' => [1],
+				],
+			],
+			[
+				'headers' => [
+					'ssl_key' => [1],
+				],
+			],
+			[
+				'headers' => [
+					'cert' => [1, 1],
+				],
+			],
+			[
+				'headers' => [
+					'ssl_key' => [1, 1],
 				],
 			],
 		];

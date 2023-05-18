@@ -14,6 +14,7 @@ use function class_exists;
 use function defined;
 use function strlen;
 use function strncmp;
+use function var_dump;
 use const CURLE_OPERATION_TIMEOUTED;
 
 class GuzzleHttpClient implements IHttpClient
@@ -37,6 +38,8 @@ class GuzzleHttpClient implements IHttpClient
 		$request = $request->withoutHeader('timeout')
 			->withoutHeader('connect_timeout')
 			->withoutHeader('verify')
+			->withoutHeader('cert')
+			->withoutHeader('ssl_key')
 			->withHeader('Accept-Encoding', 'gzip');
 
 		try {
@@ -103,6 +106,15 @@ class GuzzleHttpClient implements IHttpClient
 
 		if ($request->hasHeader('verify') && !(bool) $request->getHeaderLine('verify')) {
 			$options['verify'] = false;
+		}
+
+		var_dump($request->getHeaderLine('cert'));
+		if ($request->hasHeader('cert')) {
+			$options['cert'] = $request->getHeaderLine('cert');
+		}
+
+		if ($request->hasHeader('ssl_key')) {
+			$options['ssl_key'] = $request->getHeaderLine('ssl_key');
 		}
 
 		return $options;

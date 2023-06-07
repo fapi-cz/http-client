@@ -14,7 +14,6 @@ use function class_exists;
 use function defined;
 use function strlen;
 use function strncmp;
-use function var_dump;
 use const CURLE_OPERATION_TIMEOUTED;
 
 class GuzzleHttpClient implements IHttpClient
@@ -108,7 +107,6 @@ class GuzzleHttpClient implements IHttpClient
 			$options['verify'] = false;
 		}
 
-		var_dump($request->getHeaderLine('cert'));
 		if ($request->hasHeader('cert')) {
 			$options['cert'] = $request->getHeaderLine('cert');
 		}

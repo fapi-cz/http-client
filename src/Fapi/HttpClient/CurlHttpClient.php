@@ -3,6 +3,7 @@
 namespace Fapi\HttpClient;
 
 use Composer\CaBundle\CaBundle;
+use CurlHandle;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use function assert;
@@ -93,12 +94,8 @@ class CurlHttpClient implements IHttpClient
 		return $httpResponse;
 	}
 
-	/**
-	 * @return resource
-	 */
-	private function initializeCurl(RequestInterface $httpRequest)
+	private function initializeCurl(RequestInterface $httpRequest): CurlHandle
 	{
-		/** @var resource $handle */
 		$handle = curl_init();
 
 		curl_setopt_array($handle, [
@@ -112,10 +109,7 @@ class CurlHttpClient implements IHttpClient
 		return $handle;
 	}
 
-	/**
-	 * @param resource $handle
-	 */
-	private function processOptions(RequestInterface $request, $handle): void
+	private function processOptions(RequestInterface $request, CurlHandle $handle): void
 	{
 		if ($request->hasHeader('timeout')) {
 			curl_setopt($handle, CURLOPT_TIMEOUT, (int) $request->getHeaderLine('timeout'));
@@ -128,7 +122,7 @@ class CurlHttpClient implements IHttpClient
 		if ($request->hasHeader('cert')) {
 			curl_setopt($handle, CURLOPT_SSLCERT, $request->getHeader('cert')[0]);
 
-			if ($request->getHeader('cert')[1] ?? false) {
+			if ((bool) ($request->getHeader('cert')[1] ?? false)) {
 				curl_setopt($handle, CURLOPT_SSLCERTPASSWD, $request->getHeader('cert')[1]);
 			}
 		}
@@ -136,7 +130,7 @@ class CurlHttpClient implements IHttpClient
 		if ($request->hasHeader('ssl_key')) {
 			curl_setopt($handle, CURLOPT_SSLKEY, $request->getHeader('ssl_key')[0]);
 
-			if ($request->getHeader('ssl_key')[1] ?? false) {
+			if ((bool) ($request->getHeader('ssl_key')[1] ?? false)) {
 				curl_setopt($handle, CURLOPT_SSLKEYPASSWD, $request->getHeader('ssl_key')[1]);
 			}
 		}
@@ -144,10 +138,7 @@ class CurlHttpClient implements IHttpClient
 		$this->processVerifyOption($request->getHeaderLine('verify'), $handle);
 	}
 
-	/**
-	 * @param resource $handle
-	 */
-	private function processVerifyOption(string $verify, $handle): void
+	private function processVerifyOption(string $verify, CurlHandle $handle): void
 	{
 		if ((bool) $verify) {
 			$caPathOrFile = CaBundle::getSystemCaRootBundlePath();
@@ -165,10 +156,7 @@ class CurlHttpClient implements IHttpClient
 		curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
 	}
 
-	/**
-	 * @param resource $handle
-	 */
-	private function processHeaders(RequestInterface $request, $handle): RequestInterface
+	private function processHeaders(RequestInterface $request, CurlHandle $handle): RequestInterface
 	{
 		$request = $request->withoutHeader('timeout')
 			->withoutHeader('connect_timeout')
@@ -213,7 +201,7 @@ class CurlHttpClient implements IHttpClient
 			$line = trim($line);
 			preg_match('#^([A-Za-z\-]+): (.*)\z#', $line, $match);
 
-			if (!$match) {
+			if (!(bool) $match) {
 				continue;
 			}
 

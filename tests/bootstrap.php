@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+use Tester\Environment;
+
 // The Nette Tester command-line runner can be
 // invoked through the command: ../vendor/bin/tester .
 
@@ -11,7 +13,7 @@ if (@!include __DIR__ . '/../vendor/autoload.php') {
 require_once __DIR__ . '/Fapi/HttpClientTests/MockHttpServer/HttpServerException.php';
 
 // configure environment
-Tester\Environment::setup();
+Environment::setup();
 date_default_timezone_set('Europe/Prague');
 
 // configure locks dir

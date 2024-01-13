@@ -11,20 +11,14 @@ use function microtime;
 class LoggingHttpClient implements IHttpClient
 {
 
-	/** @var IHttpClient */
-	private $httpClient;
+	private ILoggingFormatter $formatter;
 
-	/** @var LoggerInterface */
-	private $logger;
-
-	/** @var ILoggingFormatter */
-	private $formatter;
-
-	public function __construct(IHttpClient $httpClient, LoggerInterface $logger, ?ILoggingFormatter $formatter = null)
+	public function __construct(
+		private IHttpClient $httpClient,
+		private LoggerInterface $logger,
+		ILoggingFormatter|null $formatter = null,
+	)
 	{
-		$this->httpClient = $httpClient;
-		$this->logger = $logger;
-
 		if ($formatter === null) {
 			$formatter = new BaseLoggingFormatter();
 		}
@@ -52,24 +46,24 @@ class LoggingHttpClient implements IHttpClient
 	private function logSuccessfulRequest(
 		RequestInterface $request,
 		ResponseInterface $response,
-		float $elapsedTime
+		float $elapsedTime,
 	): void
 	{
 		$this->log(
 			$this->formatter->formatSuccessful($request, $response, $elapsedTime),
-			LogLevel::INFO
+			LogLevel::INFO,
 		);
 	}
 
 	private function logFailedRequest(
 		RequestInterface $request,
 		HttpClientException $exception,
-		float $elapsedTime
+		float $elapsedTime,
 	): void
 	{
 		$this->log(
 			$this->formatter->formatFailed($request, $exception, $elapsedTime),
-			LogLevel::WARNING
+			LogLevel::WARNING,
 		);
 	}
 

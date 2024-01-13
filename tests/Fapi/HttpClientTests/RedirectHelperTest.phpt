@@ -87,8 +87,8 @@ class RedirectHelperTest extends TestCase
 			new HttpResponse(
 				HttpStatusCode::S301_MOVED_PERMANENTLY,
 				['Location' => ['http://example.com/b']],
-				''
-			)
+				'',
+			),
 		);
 
 		$client->add(
@@ -96,8 +96,8 @@ class RedirectHelperTest extends TestCase
 			new HttpResponse(
 				HttpStatusCode::S302_FOUND,
 				['Location' => ['https://example.com/c']],
-				''
-			)
+				'',
+			),
 		);
 
 		$client->add(
@@ -105,8 +105,8 @@ class RedirectHelperTest extends TestCase
 			new HttpResponse(
 				HttpStatusCode::S200_OK,
 				['Content-Type' => ['text/plain']],
-				'OK'
-			)
+				'OK',
+			),
 		);
 
 		return $client;
@@ -121,8 +121,8 @@ class RedirectHelperTest extends TestCase
 			new HttpResponse(
 				HttpStatusCode::S301_MOVED_PERMANENTLY,
 				['Location' => ['http://example.com/a2']],
-				''
-			)
+				'',
+			),
 		);
 
 		$client->add(
@@ -130,8 +130,8 @@ class RedirectHelperTest extends TestCase
 			new HttpResponse(
 				HttpStatusCode::S301_MOVED_PERMANENTLY,
 				['Location' => ['invalid']],
-				''
-			)
+				'',
+			),
 		);
 
 		return $client;
@@ -146,8 +146,8 @@ class RedirectHelperTest extends TestCase
 			new HttpResponse(
 				HttpStatusCode::S301_MOVED_PERMANENTLY,
 				[],
-				''
-			)
+				'',
+			),
 		);
 
 		return $client;

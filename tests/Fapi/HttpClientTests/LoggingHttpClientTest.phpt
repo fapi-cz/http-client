@@ -26,13 +26,13 @@ final class LoggingHttpClientTest extends TestCase
 		Debugger::enable(false, __DIR__);
 		$loggingClient = new LoggingHttpClient(
 			$mockClient,
-			new TracyToPsrLogger(Debugger::getLogger())
+			new TracyToPsrLogger(Debugger::getLogger()),
 		);
 
 		$loggingClient->sendRequest(new HttpRequest(
 			'GET',
 			'http://localhost/1',
-			['Host' => ['localhost'], 'User-Agent' => ['Nette Tester']]
+			['Host' => ['localhost'], 'User-Agent' => ['Nette Tester']],
 		));
 
 		Assert::true(is_file(__DIR__ . '/info.log'));
@@ -45,13 +45,13 @@ final class LoggingHttpClientTest extends TestCase
 			new HttpRequest(
 				'GET',
 				'http://localhost/1',
-				['Host' => ['localhost'], 'User-Agent' => ['Nette Tester']]
+				['Host' => ['localhost'], 'User-Agent' => ['Nette Tester']],
 			),
 			new HttpResponse(
 				200,
 				['Content-Type' => ['text/plain']],
-				"It works!\n"
-			)
+				"It works!\n",
+			),
 		);
 
 		return $mockClient;

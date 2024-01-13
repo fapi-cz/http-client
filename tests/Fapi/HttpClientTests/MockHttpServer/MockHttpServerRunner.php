@@ -13,19 +13,15 @@ class MockHttpServerRunner
 {
 
 	/** @var array<callable> function (MockHttpServerRunner $sender); Occurs when the mock HTTP server is started */
-	public $onStarted = [];
+	public array $onStarted = [];
 
-	/** @var string */
-	private $serverRunningMessage = "Server running at http://127.0.0.1:1337/\n";
+	private string $serverRunningMessage = "Server running at http://127.0.0.1:1337/\n";
 
-	/** @var React\EventLoop\LoopInterface */
-	private $eventLoop;
+	private React\EventLoop\LoopInterface $eventLoop;
 
-	/** @var React\ChildProcess\Process */
-	private $process;
+	private React\ChildProcess\Process $process;
 
-	/** @var string */
-	private $stdoutBuffer;
+	private string $stdoutBuffer;
 
 	public function run(): void
 	{

@@ -12,7 +12,7 @@ interface ILoggingFormatter
 	public function formatSuccessful(
 		RequestInterface $request,
 		ResponseInterface $response,
-		float $elapsedTime
+		float $elapsedTime,
 	): string;
 
 	public function formatFailed(RequestInterface $request, Throwable $exception, float $elapsedTime): string;

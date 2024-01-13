@@ -23,7 +23,7 @@ final class MockHttpClientTest extends TestCase
 				$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com/1'));
 			},
 			InvalidArgumentException::class,
-			'Invalid HTTP request. No more requests found.'
+			'Invalid HTTP request. No more requests found.',
 		);
 	}
 
@@ -37,7 +37,7 @@ final class MockHttpClientTest extends TestCase
 				$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com/1'));
 			},
 			InvalidArgumentException::class,
-			'Invalid HTTP request. Url not matched. Expected "not.match.com" got "not.match.com/1".'
+			'Invalid HTTP request. Url not matched. Expected "not.match.com" got "not.match.com/1".',
 		);
 	}
 
@@ -51,7 +51,7 @@ final class MockHttpClientTest extends TestCase
 				$mockClient->sendRequest(new HttpRequest('POST', 'not.match.com'));
 			},
 			InvalidArgumentException::class,
-			'Invalid HTTP request. Method not matched. Expected "GET" got "POST".'
+			'Invalid HTTP request. Method not matched. Expected "GET" got "POST".',
 		);
 	}
 
@@ -67,7 +67,7 @@ final class MockHttpClientTest extends TestCase
 				]));
 			},
 			InvalidArgumentException::class,
-			'Invalid HTTP request. Options not matched. Expected: "[]", got: "{"headers":[""]}".'
+			'Invalid HTTP request. Options not matched. Expected: "[]", got: "{"headers":[""]}".',
 		);
 	}
 
@@ -81,7 +81,7 @@ final class MockHttpClientTest extends TestCase
 				$mockClient->sendRequest(new HttpRequest('GET', 'not.match.com', []));
 			},
 			InvalidArgumentException::class,
-			'Invalid HTTP request. Body not matched. Expected: "test", got: "".'
+			'Invalid HTTP request. Body not matched. Expected: "test", got: "".',
 		);
 	}
 

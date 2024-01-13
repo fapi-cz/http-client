@@ -19,8 +19,7 @@ use const CURLE_OPERATION_TIMEOUTED;
 class GuzzleHttpClient implements IHttpClient
 {
 
-	/** @var Client */
-	private $client;
+	private Client $client;
 
 	public function __construct()
 	{
@@ -48,7 +47,7 @@ class GuzzleHttpClient implements IHttpClient
 				$response->getHeaders(),
 				$response->getBody(),
 				$response->getProtocolVersion(),
-				$response->getReasonPhrase()
+				$response->getReasonPhrase(),
 			);
 		} catch (TransferException $e) {
 			if ($this->isTimeoutException($e)) {
@@ -96,11 +95,13 @@ class GuzzleHttpClient implements IHttpClient
 		$options = [];
 
 		if ($request->hasHeader('timeout')) {
-			$options['timeout'] = (int) ($request->getHeaderLine('timeout') ?? 5);
+			$headerLine = $request->getHeaderLine('timeout');
+			$options['timeout'] = (int) ($headerLine !== '' ? $headerLine : 5);
 		}
 
 		if ($request->hasHeader('connect_timeout')) {
-			$options['connect_timeout'] = (int) ($request->getHeaderLine('connect_timeout') ?? 5);
+			$headerLine = $request->getHeaderLine('connect_timeout');
+			$options['connect_timeout'] = (int) ($headerLine !== '' ? $headerLine : 5);
 		}
 
 		if ($request->hasHeader('verify') && !(bool) $request->getHeaderLine('verify')) {

@@ -29,7 +29,7 @@ class RestClientTest extends TestCase
 			HttpMethod::GET,
 			[],
 			HttpStatusCode::S200_OK,
-			'[{"id":1},{"id":2},{"id":3}]'
+			'[{"id":1},{"id":2},{"id":3}]',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -45,7 +45,7 @@ class RestClientTest extends TestCase
 			HttpMethod::GET,
 			[],
 			HttpStatusCode::S200_OK,
-			'[{"id":1},{"id":2}]'
+			'[{"id":1},{"id":2}]',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -61,7 +61,7 @@ class RestClientTest extends TestCase
 			HttpMethod::GET,
 			[],
 			HttpStatusCode::S200_OK,
-			'{"id":2}'
+			'{"id":2}',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -77,7 +77,7 @@ class RestClientTest extends TestCase
 			HttpMethod::GET,
 			[],
 			HttpStatusCode::S404_NOT_FOUND,
-			'{"status":"error","error":{"message":"Not Found"}}'
+			'{"status":"error","error":{"message":"Not Found"}}',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -93,7 +93,7 @@ class RestClientTest extends TestCase
 			HttpMethod::GET,
 			[],
 			HttpStatusCode::S200_OK,
-			'{"foo":true}'
+			'{"foo":true}',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -109,7 +109,7 @@ class RestClientTest extends TestCase
 			HttpMethod::POST,
 			['json' => ['foo' => 'bar']],
 			HttpStatusCode::S201_CREATED,
-			'{"id":7,"foo":"bar"}'
+			'{"id":7,"foo":"bar"}',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -125,7 +125,7 @@ class RestClientTest extends TestCase
 			HttpMethod::PUT,
 			['json' => ['bar' => 'baz']],
 			HttpStatusCode::S200_OK,
-			'{"id":7,"foo":"bar","bar":"baz"}'
+			'{"id":7,"foo":"bar","bar":"baz"}',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -141,7 +141,7 @@ class RestClientTest extends TestCase
 			HttpMethod::DELETE,
 			[],
 			HttpStatusCode::S200_OK,
-			'null'
+			'null',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -156,7 +156,7 @@ class RestClientTest extends TestCase
 			HttpMethod::DELETE,
 			[],
 			HttpStatusCode::S204_NO_CONTENT,
-			''
+			'',
 		);
 
 		$restClient = new RestClient('admin', 'xxx', 'https://example.com/', $httpClient);
@@ -172,7 +172,7 @@ class RestClientTest extends TestCase
 		string $method,
 		array $options,
 		int $statusCode,
-		string $responseBody
+		string $responseBody,
 	): MockHttpClient
 	{
 		$commonOptions = [
@@ -188,7 +188,7 @@ class RestClientTest extends TestCase
 		$httpResponse = new HttpResponse(
 			$statusCode,
 			['Content-Type' => ['application/json']],
-			$responseBody
+			$responseBody,
 		);
 
 		$httpClient = new MockHttpClient();

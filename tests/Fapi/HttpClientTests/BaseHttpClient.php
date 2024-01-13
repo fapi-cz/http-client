@@ -16,8 +16,7 @@ use const LOCKS_DIR;
 abstract class BaseHttpClient extends TestCase
 {
 
-	/** @var IHttpClient */
-	protected $httpClient;
+	protected IHttpClient $httpClient;
 
 	protected function setUp(): void
 	{
@@ -29,8 +28,9 @@ abstract class BaseHttpClient extends TestCase
 	abstract protected function createHttpClient(): IHttpClient;
 
 	/**
-	 * @dataProvider getSampleHttpRequests
 	 * @param array<mixed> $options
+	 *
+	 * @dataProvider getSampleHttpRequests
 	 */
 	public function testSendHttpRequest(string $url, string $method, array $options, string $expectedBody): void
 	{
@@ -194,7 +194,7 @@ abstract class BaseHttpClient extends TestCase
 					'auth' => ['admin', 'xxx'],
 					'body' => '{"foo":"bar"}',
 					'verify' => false,
-				]
+				],
 			);
 
 			$httpResponse = $httpClient->sendRequest($httpRequest);

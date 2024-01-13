@@ -10,7 +10,7 @@ class LoginRequestHandler
 {
 
 	public function handleRequest(
-		ServerRequestInterface $request
+		ServerRequestInterface $request,
 	): ResponseInterface
 	{
 		$method = $request->getMethod();

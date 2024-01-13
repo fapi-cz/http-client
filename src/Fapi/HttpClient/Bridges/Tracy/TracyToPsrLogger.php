@@ -4,6 +4,7 @@ namespace Fapi\HttpClient\Bridges\Tracy;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LogLevel;
+use Stringable;
 use Throwable;
 use Tracy\ILogger;
 
@@ -21,18 +22,16 @@ final class TracyToPsrLogger extends AbstractLogger
 		LogLevel::DEBUG => ILogger::DEBUG,
 	];
 
-	/** @var ILogger */
-	private $tracyLogger;
-
-	public function __construct(ILogger $tracyLogger)
+	public function __construct(private ILogger $tracyLogger)
 	{
-		$this->tracyLogger = $tracyLogger;
 	}
 
 	/**
+	 * @param array<mixed> $context
+	 *
 	 * @inheritdoc
 	 */
-	public function log($level, $message, array $context = [])
+	public function log($level, string|Stringable $message, array $context = []): void
 	{
 		$priority = self::PRIORITY_MAP[$level] ?? ILogger::ERROR;
 

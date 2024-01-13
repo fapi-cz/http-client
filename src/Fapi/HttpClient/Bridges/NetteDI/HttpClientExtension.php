@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace Fapi\HttpClient\Bidges\NetteDI;
+namespace Fapi\HttpClient\Bridges\NetteDI;
 
 use Fapi\HttpClient\Bridges\Tracy\BarHttpClient;
 use Fapi\HttpClient\Bridges\Tracy\TracyToPsrLogger;
@@ -15,14 +15,14 @@ class HttpClientExtension extends CompilerExtension
 {
 
 	/** @var array<mixed> */
-	public $defaults = [
+	public array $defaults = [
 		'type' => 'guzzle',
 		'logging' => false,
 		'bar' => false,
 	];
 
 	/** @var array<string> */
-	private $typeClasses = [
+	private array $typeClasses = [
 		'curl' => CurlHttpClient::class,
 		'guzzle' => GuzzleHttpClient::class,
 	];

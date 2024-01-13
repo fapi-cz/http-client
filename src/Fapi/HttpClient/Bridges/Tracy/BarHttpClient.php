@@ -16,24 +16,17 @@ use function ob_start;
 final class BarHttpClient implements IHttpClient, IBarPanel
 {
 
-	/** @var int */
-	private $maxRequests = 100;
-
-	/** @var IHttpClient */
-	private $httpClient;
+	private int $maxRequests = 100;
 
 	/** @var array<mixed> */
-	private $requests = [];
+	private array $requests = [];
 
-	/** @var int */
-	private $count = 0;
+	private int $count = 0;
 
-	/** @var float */
-	private $totalTime = 0.0;
+	private float $totalTime = 0.0;
 
-	public function __construct(IHttpClient $httpClient)
+	public function __construct(private IHttpClient $httpClient)
 	{
-		$this->httpClient = $httpClient;
 		Debugger::getBar()->addPanel($this);
 	}
 

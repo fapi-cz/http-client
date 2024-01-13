@@ -15,40 +15,29 @@ use function str_replace;
 class CapturingHttpClient implements IHttpClient
 {
 
-	/** @var IHttpClient */
-	private $httpClient;
-
 	/** @var array<RequestInterface> */
-	private $httpRequests = [];
+	private array $httpRequests = [];
 
 	/** @var array<ResponseInterface> */
-	private $httpResponses = [];
+	private array $httpResponses = [];
 
-	/** @var string */
-	private $file;
-
-	/** @var string */
-	private $className;
-
-	public function __construct(IHttpClient $httpClient, string $file, string $className)
+	public function __construct(private IHttpClient $httpClient, private string $file, private string $className)
 	{
 		if (!class_exists('Tester\Dumper')) {
 			throw new InvalidStateException('Capturing HTTP client requires Nette Tester.');
 		}
-
-		$this->httpClient = $httpClient;
 
 		if (is_file($file)) {
 			require_once $file;
 			spl_autoload($className);
 
 			if (class_exists($className)) {
-				$this->httpClient = new $className();
+				/** @var IHttpClient $httpClient */
+				$httpClient = new $className();
+
+				$this->httpClient = $httpClient;
 			}
 		}
-
-		$this->file = $file;
-		$this->className = $className;
 	}
 
 	public function sendRequest(RequestInterface $request): ResponseInterface
@@ -82,7 +71,7 @@ class CapturingHttpClient implements IHttpClient
 		$code = '<?php declare(strict_types = 1);' . "\n";
 		$code .= "\n";
 
-		if ($namespace) {
+		if ((bool) $namespace) {
 			$code .= 'namespace ' . $namespace . ';' . "\n";
 			$code .= "\n";
 		}
@@ -106,13 +95,13 @@ class CapturingHttpClient implements IHttpClient
 			$code .= "\t\t\t\t" . $this->exportValue((string) $httpRequest->getUri(), "\t\t\t\t") . ",\n";
 			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getHeaders(), "\t\t\t\t") . ",\n";
 			$code .= "\t\t\t\t" . $this->exportValue((string) $httpRequest->getBody(), "\t\t\t\t") . ",\n";
-			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getProtocolVersion(), "\t\t\t\t") . "\n";
+			$code .= "\t\t\t\t" . $this->exportValue($httpRequest->getProtocolVersion(), "\t\t\t\t") . ",\n";
 			$code .= "\t\t\t" . '),' . "\n";
 			$code .= "\t\t\t" . 'new HttpResponse(' . "\n";
 			$code .= "\t\t\t\t" . $this->exportValue($httpResponse->getStatusCode(), "\t\t\t\t") . ",\n";
 			$code .= "\t\t\t\t" . $this->exportValue($httpResponse->getHeaders(), "\t\t\t\t") . ",\n";
-			$code .= "\t\t\t\t" . $this->exportValue((string) $httpResponse->getBody(), "\t\t\t\t") . "\n";
-			$code .= "\t\t\t" . ')' . "\n";
+			$code .= "\t\t\t\t" . $this->exportValue((string) $httpResponse->getBody(), "\t\t\t\t") . ",\n";
+			$code .= "\t\t\t" . ')' . ",\n";
 			$code .= "\t\t" . ');' . "\n";
 		}
 
@@ -123,10 +112,7 @@ class CapturingHttpClient implements IHttpClient
 		file_put_contents($fileName, $code);
 	}
 
-	/**
-	 * @param mixed $value
-	 */
-	private function exportValue($value, string $indent = ''): string
+	private function exportValue(mixed $value, string $indent = ''): string
 	{
 		$s = Dumper::toPhp($value);
 		$s = str_replace("\n", "\n" . $indent, $s);

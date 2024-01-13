@@ -20,20 +20,17 @@ use Tester\Assert;
 use Tester\FileMock;
 use Tester\TestCase;
 use function file_get_contents;
-use function get_class;
 
 require __DIR__ . '/../../bootstrap.php';
 
 class CapturingHttpClientTest extends TestCase
 {
 
-	/** @var string */
-	private $file;
+	private string $file;
 
 	public function setUp(): void
 	{
 		$this->file = __DIR__ . '/MockHttpClients/SampleMockHttpClient2.php';
-
 	}
 
 	public function testWriteToMockPhpFile(): void
@@ -45,7 +42,7 @@ class CapturingHttpClientTest extends TestCase
 				'headers' => [
 					'User-Agent' => 'Nette Tester',
 				],
-			]
+			],
 		);
 
 		$mockHttpResponse = new HttpResponse(
@@ -55,7 +52,7 @@ class CapturingHttpClientTest extends TestCase
 					'text/plain',
 				],
 			],
-			"It works!\n"
+			"It works!\n",
 		);
 
 		$mockHttpClient = new MockHttpClient();
@@ -65,7 +62,7 @@ class CapturingHttpClientTest extends TestCase
 		$capturingHttpClient = new CapturingHttpClient(
 			$mockHttpClient,
 			$fileName,
-			'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient'
+			'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient',
 		);
 		$capturingHttpClient->sendRequest($mockHttpRequest);
 
@@ -85,7 +82,7 @@ class CapturingHttpClientTest extends TestCase
 				'headers' => [
 					'User-Agent' => 'Nette Tester',
 				],
-			]
+			],
 		);
 
 		$mockHttpResponse = new HttpResponse(
@@ -95,7 +92,7 @@ class CapturingHttpClientTest extends TestCase
 					'text/plain',
 				],
 			],
-			"It works!\n"
+			"It works!\n",
 		);
 
 		$mockHttpClient = new MockHttpClient();
@@ -104,13 +101,13 @@ class CapturingHttpClientTest extends TestCase
 		$capturingHttpClient = new CapturingHttpClient(
 			$mockHttpClient,
 			$this->file,
-			'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient2'
+			'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient2',
 		);
 		$capturingHttpClient->sendRequest($mockHttpRequest);
 
 		$capturingHttpClient->close();
 
-		$reflectionClass = new ReflectionClass(get_class($capturingHttpClient));
+		$reflectionClass = new ReflectionClass($capturingHttpClient::class);
 		$reflectionProperty = $reflectionClass->getProperty('httpClient');
 		$reflectionProperty->setAccessible(true);
 		$httpClient = $reflectionProperty->getValue($capturingHttpClient);
@@ -120,13 +117,13 @@ class CapturingHttpClientTest extends TestCase
 		$capturingHttpClient = new CapturingHttpClient(
 			$mockHttpClient,
 			$this->file,
-			'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient2'
+			'Fapi\\HttpClientTests\\MockHttpClients\\SampleMockHttpClient2',
 		);
 		$capturingHttpClient->sendRequest($mockHttpRequest);
 
 		$capturingHttpClient->close();
 
-		$reflectionClass = new ReflectionClass(get_class($capturingHttpClient));
+		$reflectionClass = new ReflectionClass($capturingHttpClient::class);
 		$reflectionProperty = $reflectionClass->getProperty('httpClient');
 		$reflectionProperty->setAccessible(true);
 		$httpClient = $reflectionProperty->getValue($capturingHttpClient);

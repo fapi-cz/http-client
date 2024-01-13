@@ -19,24 +19,16 @@ use function rtrim;
 class RestClient
 {
 
-	/** @var string */
-	private $username;
+	private string $apiUrl;
 
-	/** @var string */
-	private $password;
-
-	/** @var string */
-	private $apiUrl;
-
-	/** @var IHttpClient */
-	private $httpClient;
-
-	public function __construct(string $username, string $password, string $apiUrl, IHttpClient $httpClient)
+	public function __construct(
+		private string $username,
+		private string $password,
+		string $apiUrl,
+		private IHttpClient $httpClient,
+	)
 	{
-		$this->username = $username;
-		$this->password = $password;
 		$this->apiUrl = rtrim($apiUrl, '/');
-		$this->httpClient = $httpClient;
 	}
 
 	/**
@@ -56,7 +48,7 @@ class RestClient
 		}
 
 		throw new InvalidStatusCodeException(
-			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.'
+			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.',
 		);
 	}
 
@@ -64,7 +56,7 @@ class RestClient
 	 * @param array<mixed> $parameters
 	 * @return array<mixed>|null
 	 */
-	public function getResource(string $path, int $id, array $parameters = []): ?array
+	public function getResource(string $path, int $id, array $parameters = []): array|null
 	{
 		$path .= '/' . $id;
 
@@ -83,7 +75,7 @@ class RestClient
 		}
 
 		throw new InvalidStatusCodeException(
-			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.'
+			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.',
 		);
 	}
 
@@ -104,7 +96,7 @@ class RestClient
 		}
 
 		throw new InvalidStatusCodeException(
-			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.'
+			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.',
 		);
 	}
 
@@ -121,7 +113,7 @@ class RestClient
 		}
 
 		throw new InvalidStatusCodeException(
-			'Expected return status code ' . HttpStatusCode::S201_CREATED . ', got ' . $httpResponse->getStatusCode() . '.'
+			'Expected return status code ' . HttpStatusCode::S201_CREATED . ', got ' . $httpResponse->getStatusCode() . '.',
 		);
 	}
 
@@ -138,7 +130,7 @@ class RestClient
 		}
 
 		throw new InvalidStatusCodeException(
-			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.'
+			'Expected return status code ' . HttpStatusCode::S200_OK . ', got ' . $httpResponse->getStatusCode() . '.',
 		);
 	}
 
@@ -149,7 +141,7 @@ class RestClient
 		$validStatusCode = !in_array(
 			$httpResponse->getStatusCode(),
 			[HttpStatusCode::S200_OK, HttpStatusCode::S204_NO_CONTENT],
-			true
+			true,
 		);
 
 		if ($validStatusCode) {
@@ -157,7 +149,7 @@ class RestClient
 				'Expected return status code [' . implode(', ', [
 					HttpStatusCode::S200_OK,
 					HttpStatusCode::S204_NO_CONTENT,
-				]) . '], got ' . $httpResponse->getStatusCode() . '.'
+				]) . '], got ' . $httpResponse->getStatusCode() . '.',
 			);
 		}
 	}
@@ -165,7 +157,7 @@ class RestClient
 	/**
 	 * @param array<mixed>|null $data
 	 */
-	private function sendHttpRequest(string $method, string $path, ?array $data = null): ResponseInterface
+	private function sendHttpRequest(string $method, string $path, array|null $data = null): ResponseInterface
 	{
 		$url = $this->apiUrl . $path;
 
@@ -228,10 +220,7 @@ class RestClient
 		return $responseData;
 	}
 
-	/**
-	 * @return mixed
-	 */
-	private function getResponseData(ResponseInterface $httpResponse)
+	private function getResponseData(ResponseInterface $httpResponse): mixed
 	{
 		try {
 			return Json::decode((string) $httpResponse->getBody(), Json::FORCE_ARRAY);

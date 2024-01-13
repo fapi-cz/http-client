@@ -12,21 +12,20 @@ class HttpResponse extends Response
 
 	/**
 	 * @param array<mixed> $headers
-	 * @param StreamInterface|string|null $body
 	 */
 	public function __construct(
 		int $status = 200,
 		array $headers = [],
-		$body = null,
+		StreamInterface|string|null $body = null,
 		string $version = '1.1',
-		?string $reason = null
+		string|null $reason = null,
 	)
 	{
 		if (!HttpStatusCode::isValid($status)) {
 			throw new InvalidArgumentException('Parameter statusCode must be an HTTP status code.');
 		}
 
-		static::validateHeaders($headers);
+		self::validateHeaders($headers);
 
 		parent::__construct($status, $headers, $body, $version, $reason);
 	}

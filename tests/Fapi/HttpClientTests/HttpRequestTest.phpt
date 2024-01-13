@@ -28,8 +28,9 @@ final class HttpRequestTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider getValidHeadersData
 	 * @param array<mixed> $headers
+	 *
+	 * @dataProvider getValidHeadersData
 	 */
 	public function testValidHeaders(array $headers = []): void
 	{
@@ -39,8 +40,9 @@ final class HttpRequestTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider getInvalidHeadersData
 	 * @param array<mixed> $headers
+	 *
+	 * @dataProvider getInvalidHeadersData
 	 */
 	public function testInvalidHeaders(array $headers = []): void
 	{

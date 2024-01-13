@@ -19,11 +19,11 @@ class RedirectHelper
 		IHttpClient $httpClient,
 		ResponseInterface $response,
 		RequestInterface $request,
-		int $limit = 5
+		int $limit = 5,
 	): ResponseInterface
 	{
 		for ($count = 0; $count < $limit; $count++) {
-			$redirectUrl = static::getRedirectUrl($response, $request->getUri());
+			$redirectUrl = self::getRedirectUrl($response, $request->getUri());
 
 			if ($redirectUrl === null) {
 				return $response;
@@ -36,13 +36,13 @@ class RedirectHelper
 		throw new TooManyRedirectsException('Maximum number of redirections exceeded.');
 	}
 
-	private static function getRedirectUrl(ResponseInterface $httpResponse, UriInterface $requestUri): ?string
+	private static function getRedirectUrl(ResponseInterface $httpResponse, UriInterface $requestUri): string|null
 	{
-		if (!static::isRedirectionStatusCode($httpResponse->getStatusCode())) {
+		if (!self::isRedirectionStatusCode($httpResponse->getStatusCode())) {
 			return null;
 		}
 
-		$url = static::getLocationHeader($httpResponse->getHeaders());
+		$url = self::getLocationHeader($httpResponse->getHeaders());
 
 		if ($url === null) {
 			return null;
@@ -52,7 +52,7 @@ class RedirectHelper
 			$url = $requestUri->getScheme() . '://' . $requestUri->getHost() . $url;
 		}
 
-		if (!static::isValidRedirectUrl($url)) {
+		if (!self::isValidRedirectUrl($url)) {
 			return null;
 		}
 
@@ -67,7 +67,7 @@ class RedirectHelper
 	/**
 	 * @param array<array<mixed>> $headers
 	 */
-	private static function getLocationHeader(array $headers): ?string
+	private static function getLocationHeader(array $headers): string|null
 	{
 		$headers = array_change_key_case($headers, CASE_LOWER);
 

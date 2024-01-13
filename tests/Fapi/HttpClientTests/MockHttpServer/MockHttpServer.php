@@ -13,32 +13,23 @@ use const STDOUT;
 class MockHttpServer
 {
 
-	/** @var React\EventLoop\LoopInterface */
-	private $eventLoop;
+	private React\EventLoop\LoopInterface $eventLoop;
 
-	/** @var React\Socket\Server */
-	private $socketServer;
+	private React\Socket\Server $socketServer;
 
-	/** @var React\Http\Server */
-	private $httpServer;
+	private React\Http\Server $httpServer;
 
-	/** @var ApiRequestHandler */
-	private $apiRequestHandler;
+	private ApiRequestHandler $apiRequestHandler;
 
-	/** @var AssignCookieRequestHandler */
-	private $assignCookieRequestHandler;
+	private AssignCookieRequestHandler $assignCookieRequestHandler;
 
-	/** @var CheckCookieRequestHandler */
-	private $checkCookieRequestHandler;
+	private CheckCookieRequestHandler $checkCookieRequestHandler;
 
-	/** @var DelayedRequestHandler */
-	private $delayedRequestHandler;
+	private DelayedRequestHandler $delayedRequestHandler;
 
-	/** @var EmptyRequestHandler */
-	private $emptyRequestHandler;
+	private EmptyRequestHandler $emptyRequestHandler;
 
-	/** @var LoginRequestHandler */
-	private $loginRequestHandler;
+	private LoginRequestHandler $loginRequestHandler;
 
 	public function run(): void
 	{
@@ -76,7 +67,7 @@ class MockHttpServer
 	}
 
 	private function processRequest(
-		ServerRequestInterface $request
+		ServerRequestInterface $request,
 	): ResponseInterface
 	{
 		$path = $request->getUri()->getPath();

@@ -15,10 +15,10 @@ class MockHttpClient implements IHttpClient
 {
 
 	/** @var array<RequestInterface> */
-	private $requests = [];
+	private array $requests = [];
 
 	/** @var array<ResponseInterface> */
-	private $responses = [];
+	private array $responses = [];
 
 	public function add(RequestInterface $request, ResponseInterface $response): void
 	{
@@ -61,7 +61,7 @@ class MockHttpClient implements IHttpClient
 
 		throw new InvalidArgumentException(
 			'Invalid HTTP request. Url not matched. Expected "'
-			. $expectedUrl . '" got "' . $actualUrl . '".'
+			. $expectedUrl . '" got "' . $actualUrl . '".',
 		);
 	}
 
@@ -73,7 +73,7 @@ class MockHttpClient implements IHttpClient
 
 		throw new InvalidArgumentException(
 			'Invalid HTTP request. Method not matched. Expected "'
-			. $expected->getMethod() . '" got "' . $actual->getMethod() . '".'
+			. $expected->getMethod() . '" got "' . $actual->getMethod() . '".',
 		);
 	}
 
@@ -88,7 +88,7 @@ class MockHttpClient implements IHttpClient
 			. Json::encode($expected->getHeaders())
 			. '", got: "'
 			. Json::encode($actual->getHeaders())
-			. '".'
+			. '".',
 		);
 	}
 
@@ -103,7 +103,7 @@ class MockHttpClient implements IHttpClient
 			. $expected->getBody()
 			. '", got: "'
 			. $actual->getBody()
-			. '".'
+			. '".',
 		);
 	}
 

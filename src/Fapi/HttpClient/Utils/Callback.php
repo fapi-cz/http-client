@@ -21,10 +21,9 @@ class Callback
 	 *
 	 * @param array<mixed> $args
 	 * @param callable $onError function($message, $severity)
-	 * @return mixed
 	 * @throws Throwable
 	 */
-	public static function invokeSafe(callable $function, array $args, callable $onError)
+	public static function invokeSafe(callable $function, array $args, callable $onError): mixed
 	{
 		/** @noinspection PhpUnusedLocalVariableInspection */
 		$prev = set_error_handler(static function ($severity, $message, $file) use ($onError, &$prev) {

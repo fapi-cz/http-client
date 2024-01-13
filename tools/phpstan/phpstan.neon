@@ -1,8 +1,5 @@
 parameters:
 	excludes_analyse:
-	ignoreErrors:
-		- '#Constant LOCKS_DIR not found\.#'
-		- '#Used constant LOCKS_DIR not found\.#'
 
 includes:
 	- ../../vendor/phpstan/phpstan-nette/extension.neon

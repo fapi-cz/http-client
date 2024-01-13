@@ -22,14 +22,18 @@ class HttpRequest extends Request
 {
 
 	/** @var array<mixed> */
-	private static $defaults = ['verify' => true];
+	private static array $defaults = ['verify' => true];
 
 	/**
-	 * @param UriInterface|string $uri
 	 * @param array<mixed> $headers
-	 * @param StreamInterface|string|null $body
 	 */
-	public function __construct(string $method, $uri, array $headers = [], $body = null, string $version = '1.1')
+	public function __construct(
+		string $method,
+		UriInterface|string $uri,
+		array $headers = [],
+		StreamInterface|string|null $body = null,
+		string $version = '1.1',
+	)
 	{
 		if (!HttpMethod::isValid($method)) {
 			throw new InvalidArgumentException('Parameter method must be an HTTP method.');
@@ -39,95 +43,90 @@ class HttpRequest extends Request
 	}
 
 	/**
-	 * @param UriInterface|string $uri
 	 * @param array<mixed> $options
 	 */
-	public static function from($uri, string $method = HttpMethod::GET, array $options = []): HttpRequest
+	public static function from(UriInterface|string $uri, string $method = HttpMethod::GET, array $options = []): self
 	{
-		$body = null;
-		$options = static::preProcessHeaders($options, $body);
+		$body = '';
+		$options = self::preProcessHeaders($options, $body);
 
 		return new self($method, $uri, $options, $body);
 	}
 
 	/**
 	 * @param array<mixed> $options
-	 * @param StreamInterface|string $body
 	 * @return array<mixed>
 	 */
-	private static function preProcessHeaders(array $options, &$body): array
+	private static function preProcessHeaders(array $options, StreamInterface|string &$body): array
 	{
 		$data = self::$defaults;
 
 		if (isset($options['form_params'])) {
 			$value = $options['form_params'];
-			static::validateFormParamsOption($value);
+			self::validateFormParamsOption($value);
 			$body = http_build_query($value, '', '&');
 			$data['Content-Type'] = 'application/x-www-form-urlencoded';
 		}
 
 		if (isset($options['headers'])) {
 			$value = $options['headers'];
-			static::validateHeadersOption($value);
+			self::validateHeadersOption($value);
 			$data += $value;
 		}
 
 		if (isset($options['auth'])) {
 			$value = $options['auth'];
-			static::validateAuthOption($value);
+			self::validateAuthOption($value);
 			$data['Authorization'] = 'Basic ' . base64_encode($value[0] . ':' . $value[1]);
 		}
 
 		if (isset($options['body'])) {
 			$value = $options['body'];
-			static::validateBodyOption($value);
+			self::validateBodyOption($value);
 			$body = $value;
 		}
 
 		if (isset($options['json'])) {
 			$value = $options['json'];
-			static::validateJsonOption($value);
+			self::validateJsonOption($value);
 			$body = Json::encode($value);
 			$data['Content-Type'] = 'application/json';
 		}
 
 		if (isset($options['timeout'])) {
 			$value = $options['timeout'];
-			static::validateTimeoutOption($value);
+			self::validateTimeoutOption($value);
 			$data['timeout'] = $value;
 		}
 
 		if (isset($options['connect_timeout'])) {
 			$value = $options['connect_timeout'];
-			static::validateConnectTimeoutOption($value);
+			self::validateConnectTimeoutOption($value);
 			$data['connect_timeout'] = $value;
 		}
 
 		if (isset($options['verify'])) {
 			$value = $options['verify'];
-			static::validateVerify($value);
+			self::validateVerify($value);
 			$data['verify'] = (bool) $value;
 		}
 
 		if (isset($options['cert'])) {
 			$value = $options['cert'];
-			static::validateCertOption($value);
+			self::validateCertOption($value);
 			$data['cert'] = $value;
 		}
 
 		if (isset($options['ssl_key'])) {
 			$value = $options['ssl_key'];
-			static::validateSslKeyOption($value);
+			self::validateSslKeyOption($value);
 			$data['ssl_key'] = $value;
 		}
 
 		return $data;
 	}
 
-	/**
-	 * @param mixed $formParams
-	 */
-	private static function validateFormParamsOption($formParams): void
+	private static function validateFormParamsOption(mixed $formParams): void
 	{
 		if (!is_array($formParams)) {
 			throw new InvalidArgumentException('Form params must be an array.');
@@ -140,10 +139,7 @@ class HttpRequest extends Request
 		}
 	}
 
-	/**
-	 * @param mixed $headers
-	 */
-	private static function validateHeadersOption($headers): void
+	private static function validateHeadersOption(mixed $headers): void
 	{
 		if (!is_array($headers)) {
 			throw new InvalidArgumentException('Headers must be an array.');
@@ -162,10 +158,7 @@ class HttpRequest extends Request
 		}
 	}
 
-	/**
-	 * @param mixed $auth
-	 */
-	private static function validateAuthOption($auth): void
+	private static function validateAuthOption(mixed $auth): void
 	{
 		if (!is_array($auth)) {
 			throw new InvalidArgumentException('Parameter auth must be an array.');
@@ -173,7 +166,7 @@ class HttpRequest extends Request
 
 		if (count($auth) !== 2 || !isset($auth[0], $auth[1])) {
 			throw new InvalidArgumentException(
-				'Parameter auth must be an array of two elements (username and password).'
+				'Parameter auth must be an array of two elements (username and password).',
 			);
 		}
 
@@ -186,20 +179,14 @@ class HttpRequest extends Request
 		}
 	}
 
-	/**
-	 * @param mixed $body
-	 */
-	private static function validateBodyOption($body): void
+	private static function validateBodyOption(mixed $body): void
 	{
 		if (!is_string($body)) {
 			throw new InvalidArgumentException('Body must be a string.');
 		}
 	}
 
-	/**
-	 * @param mixed $json
-	 */
-	private static function validateJsonOption($json): void
+	private static function validateJsonOption(mixed $json): void
 	{
 		try {
 			Json::encode($json);
@@ -208,40 +195,28 @@ class HttpRequest extends Request
 		}
 	}
 
-	/**
-	 * @param mixed $timeout
-	 */
-	private static function validateTimeoutOption($timeout): void
+	private static function validateTimeoutOption(mixed $timeout): void
 	{
 		if ($timeout !== null && !is_int($timeout)) {
 			throw new InvalidArgumentException('Option timeout must be an integer or null.');
 		}
 	}
 
-	/**
-	 * @param mixed $connectTimeout
-	 */
-	private static function validateConnectTimeoutOption($connectTimeout): void
+	private static function validateConnectTimeoutOption(mixed $connectTimeout): void
 	{
 		if ($connectTimeout !== null && !is_int($connectTimeout)) {
 			throw new InvalidArgumentException('Option connectTimeout must be an integer or null.');
 		}
 	}
 
-	/**
-	 * @param mixed $verify
-	 */
-	private static function validateVerify($verify): void
+	private static function validateVerify(mixed $verify): void
 	{
 		if (!is_bool($verify)) {
 			throw new InvalidArgumentException('Option verify must be an bool.');
 		}
 	}
 
-	/**
-	 * @param mixed $value
-	 */
-	private static function validateCertOption($value): void
+	private static function validateCertOption(mixed $value): void
 	{
 		if (!is_string($value) && !is_array($value)) {
 			throw new InvalidArgumentException('Option cert must be a string.');
@@ -251,14 +226,16 @@ class HttpRequest extends Request
 			if (!isset($value[0]) || !isset($value[1])) {
 				throw new InvalidArgumentException(
 					'Option cert must be an array of two elements (cert and key). Provided array: ' . json_encode(
-						$value
-					)
+						$value,
+					),
 				);
 			}
 
 			if (!is_string($value[0]) || !is_string($value[1])) {
 				throw new InvalidArgumentException(
-					'Option cert must be an array of two strings (cert and key). Provided array: ' . json_encode($value)
+					'Option cert must be an array of two strings (cert and key). Provided array: ' . json_encode(
+						$value,
+					),
 				);
 			}
 
@@ -274,10 +251,7 @@ class HttpRequest extends Request
 		}
 	}
 
-	/**
-	 * @param mixed $value
-	 */
-	private static function validateSslKeyOption($value): void
+	private static function validateSslKeyOption(mixed $value): void
 	{
 		if (!is_string($value) && !is_array($value)) {
 			throw new InvalidArgumentException('Option ssl_key must be a string.');
@@ -287,16 +261,16 @@ class HttpRequest extends Request
 			if (!isset($value[0]) || !isset($value[1])) {
 				throw new InvalidArgumentException(
 					'Option ssl_key must be an array of two elements (key and password). Provided array: ' . json_encode(
-						$value
-					) . '.'
+						$value,
+					) . '.',
 				);
 			}
 
 			if (!is_string($value[0]) || !is_string($value[1])) {
 				throw new InvalidArgumentException(
 					'Option ssl_key must be an array of two strings (key and password). Provided array: ' . json_encode(
-						$value
-					) . '.'
+						$value,
+					) . '.',
 				);
 			}
 

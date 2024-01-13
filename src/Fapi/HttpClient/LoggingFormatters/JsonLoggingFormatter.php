@@ -35,11 +35,11 @@ class JsonLoggingFormatter implements ILoggingFormatter
 				'body' => $this->processBody((string) $request->getBody()),
 			],
 			'response' => [
-				'statusCode' => $response->getStatusCode(),
+				'status_code' => $response->getStatusCode(),
 				'headers' => $response->getHeaders(),
 				'body' => $this->processBody((string) $response->getBody()),
 			],
-			'elapsedTime' => $this->formatElapsedTime($elapsedTime),
+			'elapsed_time' => $this->formatElapsedTime($elapsedTime),
 		]);
 	}
 
@@ -62,7 +62,7 @@ class JsonLoggingFormatter implements ILoggingFormatter
 					'message' => $exception->getPrevious()->getMessage(),
 				] : null,
 			],
-			'elapsedTime' => $this->formatElapsedTime($elapsedTime),
+			'elapsed_time' => $this->formatElapsedTime($elapsedTime),
 		]);
 	}
 

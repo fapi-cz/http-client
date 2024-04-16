@@ -2,12 +2,22 @@
 
 namespace Fapi\HttpClient;
 
+use Exception;
 use Fapi\HttpClient\Utils\Json;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use function array_keys;
 use function array_shift;
 use function assert;
 use function count;
+use function implode;
+use function ini_set;
+use function preg_last_error;
+use function preg_match;
+use function preg_replace;
+use function preg_replace_callback;
+use function rtrim;
+use function str_replace;
 use function strlen;
 use function substr;
 
@@ -19,6 +29,28 @@ class MockHttpClient implements IHttpClient
 
 	/** @var array<ResponseInterface> */
 	private array $responses = [];
+
+	/** @var array<string,string> */
+	public static array $patterns = [
+		'%%' => '%', // one % character
+		'%a%' => '[^\r\n]+', // one or more of anything except the end of line characters
+		'%a\?%' => '[^\r\n]*', // zero or more of anything except the end of line characters
+		'%A%' => '.+', // one or more of anything including the end of line characters
+		'%A\?%' => '.*', // zero or more of anything including the end of line characters
+		'%s%' => '[\t ]+', // one or more white space characters except the end of line characters
+		'%s\?%' => '[\t ]*', // zero or more white space characters except the end of line characters
+		'%S%' => '\S+', // one or more of characters except the white space
+		'%S\?%' => '\S*', // zero or more of characters except the white space
+		'%c%' => '[^\r\n]', // a single character of any sort (except the end of line)
+		'%d%' => '[0-9]+', // one or more digits
+		'%d\?%' => '[0-9]*', // zero or more digits
+		'%i%' => '[+-]?[0-9]+', // signed integer value
+		'%f%' => '[+-]?\.?\d+\.?\d*(?:[Ee][+-]?\d+)?', // floating point number
+		'%h%' => '[0-9a-fA-F]+', // one or more HEX digits
+		'%w%' => '[0-9a-zA-Z_]+', //one or more alphanumeric characters
+		'%ds%' => '[\\\\/]', // directory separator
+		'%(\[.+\][+*?{},\d]*)%' => '$1', // range
+	];
 
 	public function add(RequestInterface $request, ResponseInterface $response): void
 	{
@@ -94,7 +126,7 @@ class MockHttpClient implements IHttpClient
 
 	private function assertHttpRequestBody(RequestInterface $expected, RequestInterface $actual): void
 	{
-		if ((string) $expected->getBody() === (string) $actual->getBody()) {
+		if (self::isMatching((string) $expected->getBody(), (string) $actual->getBody())) {
 			return;
 		}
 
@@ -114,6 +146,48 @@ class MockHttpClient implements IHttpClient
 		}
 
 		return $url;
+	}
+
+	public static function isMatching(string $pattern, string $actual, bool $strict = false): bool
+	{
+		$old = ini_set('pcre.backtrack_limit', '10000000');
+
+		if (!self::isPcre($pattern)) {
+			$utf8 = (bool) preg_match('#\x80-\x{10FFFF}]#u', $pattern) ? 'u' : '';
+			$suffix = ($strict ? '$#DsU' : '\s*$#sU') . $utf8;
+			$patterns = static::$patterns + [
+				'[.\\\\+*?[^$(){|\#]' => '\$0', // preg quoting
+				'\x00' => '\x00',
+				'[\t ]*\r?\n' => '[\t ]*\r?\n', // right trim
+			];
+			$pattern = '#^' . preg_replace_callback(
+				'#' . implode('|', array_keys($patterns)) . '#U' . $utf8,
+				static function ($m) use ($patterns) {
+					foreach ($patterns as $re => $replacement) {
+						$s = preg_replace("#^$re$#D", str_replace('\\', '\\\\', $replacement), $m[0], 1, $count);
+						if ((bool) $count) {
+							return $s;
+						}
+					}
+				},
+				rtrim($pattern, " \t\n\r"),
+			) . $suffix;
+		}
+
+		$res = preg_match($pattern, $actual);
+		ini_set('pcre.backtrack_limit', $old);
+		if ($res === false || (bool) preg_last_error()) {
+			throw new Exception(
+				'Error while executing regular expression. (PREG Error Code ' . preg_last_error() . ')',
+			);
+		}
+
+		return (bool) $res;
+	}
+
+	private static function isPcre(string $pattern): bool
+	{
+		return (bool) preg_match('/^([~#]).+(\1)[imsxUu]*$/Ds', $pattern);
 	}
 
 }

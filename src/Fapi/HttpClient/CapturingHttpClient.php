@@ -2,6 +2,7 @@
 
 namespace Fapi\HttpClient;
 
+use LogicException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Tester\Dumper;
@@ -20,6 +21,8 @@ class CapturingHttpClient implements IHttpClient
 
 	/** @var array<ResponseInterface> */
 	private array $httpResponses = [];
+
+	private int $closed = 0;
 
 	public function __construct(private IHttpClient $httpClient, private string $file, private string $className)
 	{
@@ -56,6 +59,8 @@ class CapturingHttpClient implements IHttpClient
 
 	public function close(): void
 	{
+		$this->closed++;
+
 		if ($this->httpClient instanceof $this->className) {
 			return;
 		}
@@ -66,7 +71,8 @@ class CapturingHttpClient implements IHttpClient
 	private function writeToPhpFile(string $fileName, string $className): void
 	{
 		preg_match('#^(?:(.*)\\\\)?([^\\\\]+)\z#', $className, $match);
-		[, $namespace, $className] = $match;
+		$namespace = $match[1] ?? null;
+		$className = $match[2] ?? null;
 
 		$code = '<?php declare(strict_types = 1);' . "\n";
 		$code .= "\n";
@@ -118,6 +124,15 @@ class CapturingHttpClient implements IHttpClient
 		$s = str_replace("\n", "\n" . $indent, $s);
 
 		return $s;
+	}
+
+	public function __destruct()
+	{
+		if ($this->closed !== 1) {
+			throw new LogicException(
+				'Method: ' . self::class . '::closed Must be called exactly once. Called ' . $this->closed . ' times.',
+			);
+		}
 	}
 
 }

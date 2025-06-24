@@ -108,7 +108,11 @@ class HttpRequest extends Request
 		if (isset($options['verify'])) {
 			$value = $options['verify'];
 			self::validateVerify($value);
-			$data['verify'] = (bool) $value;
+			if (is_bool($value)) {
+				$value = $value ? 'true' : 'false';
+			}
+
+			$data['verify'] = $value;
 		}
 
 		if (isset($options['cert'])) {
@@ -211,8 +215,10 @@ class HttpRequest extends Request
 
 	private static function validateVerify(mixed $verify): void
 	{
-		if (!is_bool($verify)) {
-			throw new InvalidArgumentException('Option verify must be an bool.');
+		if (!(is_bool($verify) || (is_string($verify) && file_exists($verify)))) {
+			throw new InvalidArgumentException(
+				'Option verify must be an bool or a string path to file, ' . $verify . ' given.',
+			);
 		}
 	}
 

@@ -11,7 +11,7 @@ on:
 env:
   extensions: 'json'
   cache-version: '1'
-  composer-version: 'v1'
+  composer-version: 'v2'
   composer-install: 'composer update --no-interaction --no-progress --no-suggest --prefer-dist --prefer-stable'
 
 jobs:
@@ -21,13 +21,13 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [ '8.1', '8.2' ]
+        php-version: [ '8.1', '8.2', '8.3', '8.4' ]
         operating-system: [ 'ubuntu-latest' ]
       fail-fast: false
 
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@v2'
+        uses: 'actions/checkout@v4'
 
       - name: 'Setup PHP cache environment'
         id: 'extcache'
@@ -38,7 +38,7 @@ jobs:
           key: '${{ env.cache-version }}'
 
       - name: 'Cache PHP extensions'
-        uses: 'actions/cache@v2'
+        uses: 'actions/cache@v4'
         with:
           path: '${{ steps.extcache.outputs.dir }}'
           key: '${{ steps.extcache.outputs.key }}'
@@ -56,10 +56,10 @@ jobs:
 
       - name: 'Get Composer cache directory'
         id: 'composercache'
-        run: 'echo "::set-output name=dir::$(composer config cache-files-dir)"'
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: 'Cache PHP dependencies'
-        uses: "actions/cache@v2"
+        uses: "actions/cache@v4"
         with:
           path: '${{ steps.composercache.outputs.dir }}'
           key: "${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}"
@@ -80,13 +80,13 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [ '8.1', '8.2' ]
+        php-version: [ '8.1', '8.2', '8.3', '8.4' ]
         operating-system: [ 'ubuntu-latest' ]
       fail-fast: false
 
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@v2'
+        uses: 'actions/checkout@v4'
 
       - name: 'Setup PHP cache environment'
         id: 'extcache'
@@ -97,7 +97,7 @@ jobs:
           key: '${{ env.cache-version }}'
 
       - name: 'Cache PHP extensions'
-        uses: 'actions/cache@v2'
+        uses: 'actions/cache@v4'
         with:
           path: '${{ steps.extcache.outputs.dir }}'
           key: '${{ steps.extcache.outputs.key }}'
@@ -115,10 +115,10 @@ jobs:
 
       - name: 'Get Composer cache directory'
         id: 'composercache'
-        run: 'echo "::set-output name=dir::$(composer config cache-files-dir)"'
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: 'Cache PHP dependencies'
-        uses: 'actions/cache@v2'
+        uses: 'actions/cache@v4'
         with:
           path: '${{ steps.composercache.outputs.dir }}'
           key: "${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}"
@@ -136,15 +136,14 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [ '8.1', '8.2' ]
+        php-version: [ '8.1', '8.2', '8.3', '8.4' ]
         operating-system: [ 'ubuntu-latest' ]
         composer-args: [ '' ]
-
       fail-fast: false
 
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@v2'
+        uses: 'actions/checkout@v4'
 
       - name: 'Setup PHP cache environment'
         id: 'extcache'
@@ -155,7 +154,7 @@ jobs:
           key: '${{ env.cache-version }}'
 
       - name: 'Cache PHP extensions'
-        uses: 'actions/cache@v2'
+        uses: 'actions/cache@v4'
         with:
           path: '${{ steps.extcache.outputs.dir }}'
           key: '${{ steps.extcache.outputs.key }}'
@@ -173,10 +172,10 @@ jobs:
 
       - name: 'Get Composer cache directory'
         id: 'composercache'
-        run: 'echo "::set-output name=dir::$(composer config cache-files-dir)"'
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: 'Cache PHP dependencies'
-        uses: 'actions/cache@v2'
+        uses: 'actions/cache@v4'
         with:
           path: '${{ steps.composercache.outputs.dir }}'
           key: "${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}"
@@ -194,7 +193,7 @@ jobs:
 
     strategy:
       matrix:
-        php-version: [ '8.1', '8.2' ]
+        php-version: [ '8.1', '8.2', '8.3', '8.4' ]
         operating-system: [ 'ubuntu-latest' ]
       fail-fast: false
 
@@ -202,7 +201,7 @@ jobs:
 
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@v2'
+        uses: 'actions/checkout@v4'
 
       - name: 'Setup PHP cache environment'
         id: 'extcache'
@@ -213,7 +212,7 @@ jobs:
           key: '${{ env.cache-version }}'
 
       - name: 'Cache PHP extensions'
-        uses: 'actions/cache@v2'
+        uses: 'actions/cache@v4'
         with:
           path: '${{ steps.extcache.outputs.dir }}'
           key: '${{ steps.extcache.outputs.key }}'
@@ -231,10 +230,10 @@ jobs:
 
       - name: 'Get Composer cache directory'
         id: 'composercache'
-        run: 'echo "::set-output name=dir::$(composer config cache-files-dir)"'
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: 'Cache PHP dependencies'
-        uses: 'actions/cache@v2'
+        uses: 'actions/cache@v4'
         with:
           path: '${{ steps.composercache.outputs.dir }}'
           key: "${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}"
@@ -246,7 +245,7 @@ jobs:
       - name: 'Tests'
         run: vendor/bin/tester tests -C --coverage coverage.xml --coverage-src src
 
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true

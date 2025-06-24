@@ -125,6 +125,20 @@ $httpRequest = HttpRequest::from('https://www.example.com/', HttpMethod::GET, [
 ]);
 ```
 
+Option `verify` can be set by boolean value or by specifying path to accepted certificate file.
+
+```php
+$httpRequest = HttpRequest::from('https://www.example.com/', HttpMethod::GET, [
+	'verify' => false,
+]);
+```
+
+```php
+$httpRequest = HttpRequest::from('https://www.example.com/', HttpMethod::GET, [
+	'verify' => 'path/to/some/accepted/certificate.crt',
+]);
+```
+
 ## Redirects
 
 

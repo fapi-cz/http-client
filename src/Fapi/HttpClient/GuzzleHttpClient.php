@@ -104,8 +104,14 @@ class GuzzleHttpClient implements IHttpClient
 			$options['connect_timeout'] = (int) ($headerLine !== '' ? $headerLine : 5);
 		}
 
-		if ($request->hasHeader('verify') && !(bool) $request->getHeaderLine('verify')) {
-			$options['verify'] = false;
+		if ($request->hasHeader('verify')) {
+			$headerLine = $request->getHeaderLine('verify');
+
+			$options['verify'] = match ($headerLine) {
+				'false', '' => false,
+				'true', '1' => true,
+				default => $headerLine,
+			};
 		}
 
 		if ($request->hasHeader('cert')) {

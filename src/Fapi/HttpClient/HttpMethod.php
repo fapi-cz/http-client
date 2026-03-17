@@ -17,6 +17,8 @@ class HttpMethod
 
 	public const DELETE = 'DELETE';
 
+	public const PATCH = 'PATCH';
+
 	/**
 	 * @return array<string>
 	 */
@@ -28,6 +30,7 @@ class HttpMethod
 			self::POST,
 			self::PUT,
 			self::DELETE,
+			self::PATCH,
 		];
 	}
 
